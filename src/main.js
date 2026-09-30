@@ -366,6 +366,7 @@ function setupEventListeners() {
     targetKbSlider.value = Math.min(val, 1000);
     updateSliderTrack(val);
     highlightActivePreset(val);
+    if (targetStatusBadge) targetStatusBadge.textContent = `Target: ${val} KB`;
     debouncedTriggerCompression();
   });
 
@@ -374,6 +375,7 @@ function setupEventListeners() {
     targetKbInput.value = val;
     updateSliderTrack(val);
     highlightActivePreset(val);
+    if (targetStatusBadge) targetStatusBadge.textContent = `Target: ${val} KB`;
     debouncedTriggerCompression();
   });
 
@@ -607,6 +609,7 @@ function setTargetKB(kb) {
   targetKbSlider.value = Math.min(kb, 1000);
   updateSliderTrack(kb);
   highlightActivePreset(kb);
+  if (targetStatusBadge) targetStatusBadge.textContent = `Target: ${kb} KB`;
   triggerCompression();
 }
 
