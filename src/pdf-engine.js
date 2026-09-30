@@ -201,9 +201,67 @@ export async function convertPdfToImages(file, format = 'image/jpeg', quality = 
 }
 
 /**
- * Generate a realistic multi-page sample PDF file in-browser
+ * Retrieve sample cat photo as JPEG data URL for embedding into sample PDF
+ */
+async function getCatImageDataUrl() {
+  const possibleUrls = [
+    new URL('sample-photo.jpg', window.location.href).href,
+    './sample-photo.jpg',
+    'sample-photo.jpg',
+    '/sahikagaz/sample-photo.jpg',
+    '/sample-photo.jpg'
+  ];
+
+  for (const url of possibleUrls) {
+    try {
+      const res = await fetch(url);
+      if (res.ok) {
+        const blob = await res.blob();
+        if (blob && blob.size > 1000) {
+          const img = new Image();
+          const imgLoadPromise = new Promise((resolve, reject) => {
+            img.onload = () => resolve(img);
+            img.onerror = reject;
+          });
+          const objectUrl = URL.createObjectURL(blob);
+          img.src = objectUrl;
+          await imgLoadPromise;
+          URL.revokeObjectURL(objectUrl);
+
+          const canvas = document.createElement('canvas');
+          const maxDim = 1200;
+          let w = img.naturalWidth || 1200;
+          let h = img.naturalHeight || 800;
+          if (w > maxDim || h > maxDim) {
+            if (w > h) {
+              h = Math.round((h * maxDim) / w);
+              w = maxDim;
+            } else {
+              w = Math.round((w * maxDim) / h);
+              h = maxDim;
+            }
+          }
+          canvas.width = w;
+          canvas.height = h;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, w, h);
+          return canvas.toDataURL('image/jpeg', 0.88);
+        }
+      }
+    } catch (e) {
+      // Continue to next candidate
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Generate a realistic multi-page sample PDF file in-browser with cat photo
  */
 export async function generateSamplePdfFile() {
+  const catDataUrl = await getCatImageDataUrl();
+
   const doc = new jsPDF({
     orientation: 'portrait',
     unit: 'pt',
@@ -246,6 +304,17 @@ export async function generateSamplePdfFile() {
   doc.text("Father's Name: RAJESH SHARMA", 60, 215);
   doc.text('School Code: 84021 - DELHI PUBLIC SCHOOL', 60, 235);
 
+  // Candidate Photograph (Cat Image!)
+  if (catDataUrl) {
+    doc.setDrawColor(79, 70, 229);
+    doc.setLineWidth(1.5);
+    doc.roundedRect(420, 138, 95, 105, 4, 4);
+    doc.addImage(catDataUrl, 'JPEG', 422, 140, 91, 101);
+    doc.setFontSize(7.5);
+    doc.setTextColor(100, 116, 139);
+    doc.text('PHOTO (CAT)', 467, 252, { align: 'center' });
+  }
+
   // Table Header
   doc.setFillColor(79, 70, 229);
   doc.rect(60, 260, 475, 24, 'F');
@@ -284,37 +353,35 @@ export async function generateSamplePdfFile() {
 
   // Result Badge
   doc.setFillColor(220, 252, 231);
-  doc.roundedRect(60, 440, 475, 36, 6, 6, 'F');
+  doc.roundedRect(60, 440, 475, 34, 6, 6, 'F');
   doc.setTextColor(22, 101, 52);
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(12);
-  doc.text('RESULT: PASS (PERCENTAGE: 96.8%) \u2022 DISTINCTION', 297, 462, { align: 'center' });
+  doc.setFontSize(11);
+  doc.text('RESULT: PASS (PERCENTAGE: 96.8%) \u2022 DISTINCTION', 297, 461, { align: 'center' });
 
-  // Embedded Canvas Imagery for Realistic Size Simulation
-  const sampleCanvas = document.createElement('canvas');
-  sampleCanvas.width = 700;
-  sampleCanvas.height = 450;
-  const sCtx = sampleCanvas.getContext('2d');
-  const grad = sCtx.createLinearGradient(0, 0, 700, 450);
-  grad.addColorStop(0, '#4338ca');
-  grad.addColorStop(1, '#06b6d4');
-  sCtx.fillStyle = grad;
-  sCtx.fillRect(0, 0, 700, 450);
-
-  // Decorative waves
-  sCtx.fillStyle = 'rgba(255, 255, 255, 0.15)';
-  for (let c = 0; c < 30; c++) {
-    sCtx.beginPath();
-    sCtx.arc((c * 43) % 700, (c * 67) % 450, 40 + (c % 25), 0, Math.PI * 2);
-    sCtx.fill();
+  // Embedded Graphic / Cat Photo on Page 1
+  if (catDataUrl) {
+    doc.setDrawColor(203, 213, 225);
+    doc.setLineWidth(1);
+    doc.rect(78, 490, 439, 210);
+    doc.addImage(catDataUrl, 'JPEG', 80, 492, 435, 206);
+  } else {
+    const sampleCanvas = document.createElement('canvas');
+    sampleCanvas.width = 700;
+    sampleCanvas.height = 350;
+    const sCtx = sampleCanvas.getContext('2d');
+    const grad = sCtx.createLinearGradient(0, 0, 700, 350);
+    grad.addColorStop(0, '#4338ca');
+    grad.addColorStop(1, '#06b6d4');
+    sCtx.fillStyle = grad;
+    sCtx.fillRect(0, 0, 700, 350);
+    sCtx.fillStyle = '#ffffff';
+    sCtx.font = 'bold 32px sans-serif';
+    sCtx.textAlign = 'center';
+    sCtx.fillText('OFFICIAL DIGITAL VERIFICATION SEAL', 350, 180);
+    const sealDataUrl = sampleCanvas.toDataURL('image/jpeg', 0.95);
+    doc.addImage(sealDataUrl, 'JPEG', 80, 500, 435, 180);
   }
-  sCtx.fillStyle = '#ffffff';
-  sCtx.font = 'bold 32px sans-serif';
-  sCtx.textAlign = 'center';
-  sCtx.fillText('OFFICIAL DIGITAL VERIFICATION SEAL', 350, 230);
-  const sealDataUrl = sampleCanvas.toDataURL('image/jpeg', 0.95);
-
-  doc.addImage(sealDataUrl, 'JPEG', 80, 500, 435, 180);
 
   doc.setFontSize(10);
   doc.setTextColor(100, 116, 139);
@@ -347,10 +414,21 @@ export async function generateSamplePdfFile() {
   doc.text('Verification Status: E-KYC VERIFIED', 60, 190);
   doc.text('Category: GENERAL / UNRESERVED', 60, 210);
 
-  // Second Embedded Graphic for Page 2
-  doc.addImage(sealDataUrl, 'JPEG', 80, 260, 435, 240);
+  // Second Embedded Graphic for Page 2 (Cat Image!)
+  if (catDataUrl) {
+    doc.setTextColor(30, 27, 75);
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    doc.text('ATTACHED PHOTOGRAPHIC DOCUMENT RECORD', 297, 240, { align: 'center' });
+
+    doc.setDrawColor(203, 213, 225);
+    doc.setLineWidth(1);
+    doc.rect(78, 253, 439, 314);
+    doc.addImage(catDataUrl, 'JPEG', 80, 255, 435, 310);
+  }
 
   doc.setFontSize(10);
+  doc.setTextColor(100, 116, 139);
   doc.text('This is a computer-generated sample test document for SahiKagaz compression and conversion.', 297, 750, { align: 'center' });
 
   const pdfBlob = doc.output('blob');

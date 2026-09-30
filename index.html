@@ -274,9 +274,6 @@
     <main class="container">
       <!-- Hero Section -->
       <section class="hero-section">
-        <div class="hero-pill">
-          <span>⚡ SahiKagaz &bull; Exact Target KB Engine &bull; Zero Uploads</span>
-        </div>
         <h1 class="hero-title" id="pageHeroTitle">Reduce Image <span>MB to KB</span> Online</h1>
         <p class="hero-subtitle" id="pageHeroSubtitle">Compress JPG, PNG & WebP to exact 20KB, 50KB, or 100KB for Govt Forms, SSC, UPSC & Web. Instant & 100% Free.</p>
       </section>
@@ -321,23 +318,9 @@
       <div id="viewCompressor" class="tool-view-section">
         <!-- Main Compression Tool Container -->
         <section class="tool-card" id="mainToolCard">
-        <!-- Sub-Mode Switcher: Compress Image vs Compress PDF -->
-        <div class="sub-mode-switcher">
-          <button type="button" class="sub-mode-pill active" id="subModeCompressImage">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-            <span>Compress Image (MB &rarr; KB)</span>
-          </button>
-          <button type="button" class="sub-mode-pill" id="subModeCompressPdf">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-            <span>Compress PDF (100KB &bull; 200KB)</span>
-          </button>
-        </div>
-
-        <!-- 1A. Compress Image Wrapper -->
-        <div id="wrapCompressImage">
-        <!-- 1. Drag and Drop Upload Area -->
-        <div id="dropZone" class="dropzone" tabindex="0" role="button" aria-label="Drop Image Here or Click to Upload">
-          <input type="file" id="fileInput" accept="image/jpeg,image/png,image/webp" multiple style="display:none;" />
+        <!-- 1. Drag and Drop Upload Area (Unified Image & PDF) -->
+        <div id="dropZone" class="dropzone" tabindex="0" role="button" aria-label="Drop Image or PDF Here or Click to Upload">
+          <input type="file" id="fileInput" accept="image/jpeg,image/png,image/webp,application/pdf" multiple style="display:none;" />
           <div class="dropzone-icon compressor-glow-icon">
             <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
               <path d="M4 4h16"></path>
@@ -348,12 +331,21 @@
               <polyline points="8 17 12 14 16 17"></polyline>
             </svg>
           </div>
-          <h2 class="dropzone-title">Drop your image here, or browse</h2>
-          <p class="dropzone-sub">Supports JPG, PNG, WebP up to 50 MB &bull; Paste with <kbd>Ctrl+V</kbd></p>
-          <button type="button" class="btn-browse" id="btnBrowse">Select Image</button>
+          <h2 class="dropzone-title">Drop your image or PDF here, or browse</h2>
+          <p class="dropzone-sub">Supports JPG, PNG, WebP &amp; PDF up to 50 MB &bull; Paste with <kbd>Ctrl+V</kbd></p>
+          <button type="button" class="btn-browse" id="btnBrowse">Select Image or PDF</button>
           
           <div class="sample-trigger-row">
-            <button type="button" class="btn-sample" id="btnSamplePhoto">Don't have a photo? Try a sample image &rarr;</button>
+            <button type="button" class="btn-sample" id="btnSamplePhoto">Don't have a photo? Try sample image &rarr;</button>
+            <span style="color:var(--text-muted);">&bull;</span>
+            <button type="button" class="btn-sample" id="btnSamplePdfCompress">Try sample PDF certificate &rarr;</button>
+          </div>
+
+          <div class="converter-supported-badges">
+            <span class="fmt-pill">JPG</span>
+            <span class="fmt-pill">PNG</span>
+            <span class="fmt-pill">WebP</span>
+            <span class="fmt-pill">PDF Document</span>
           </div>
         </div>
 
@@ -626,39 +618,10 @@
             <div class="batch-list" id="batchList"></div>
           </div>
         </div>
-        </div> <!-- end #wrapCompressImage -->
 
-        <!-- 1B. Compress PDF Wrapper -->
-        <div id="wrapCompressPdf" style="display:none;">
-          <!-- Dropzone for PDF Compressor -->
-          <div id="pdfCompressDropZone" class="dropzone" tabindex="0" role="button" aria-label="Drop PDF Document Here or Click to Upload">
-            <input type="file" id="pdfCompressFileInput" accept="application/pdf" style="display:none;" />
-            <div class="dropzone-icon pdf-glow-icon">
-              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                <polyline points="14 2 14 8 20 8"></polyline>
-                <line x1="12" y1="18" x2="12" y2="12"></line>
-                <polyline points="9 15 12 18 15 15"></polyline>
-              </svg>
-            </div>
-            <h2 class="dropzone-title">Drop your PDF file here, or browse</h2>
-            <p class="dropzone-sub">Compress PDF to exact 100 KB, 200 KB, or 500 KB &bull; 100% Client-Side Privacy</p>
-            <button type="button" class="btn-browse" id="btnPdfCompressBrowse">Select PDF Document</button>
-
-            <div class="sample-trigger-row">
-              <button type="button" class="btn-sample" id="btnSamplePdfCompress">Don't have a PDF? Try a sample exam certificate &rarr;</button>
-            </div>
-
-            <div class="converter-supported-badges">
-              <span class="fmt-pill">100 KB Target</span>
-              <span class="fmt-pill">200 KB Target</span>
-              <span class="fmt-pill">SSC / UPSC Standard</span>
-              <span class="fmt-pill">Multi-Page Support</span>
-            </div>
-          </div>
-
-          <!-- PDF Compression Editor Stage -->
-          <div id="pdfCompressEditorStage" class="editor-stage">
+        <!-- 3. Active PDF Compression Editor Stage -->
+        <div id="pdfCompressEditorStage" class="editor-stage">
+          <input type="file" id="pdfCompressFileInput" accept="application/pdf" style="display:none;" />
             <!-- File Specs Bar -->
             <div class="file-info-bar">
               <div class="file-meta-group">
@@ -749,30 +712,15 @@
               </div>
             </div>
           </div>
-        </div>
-      </section>
-    </div>
+        </section>
+      </div>
 
     <!-- 2. Dedicated Format Converter Tool View (Category 2) -->
     <div id="viewConverter" class="tool-view-section" style="display:none;">
       <section class="tool-card" id="converterToolCard">
-        <!-- Convert Sub-Mode Switcher: Convert Image vs PDF to Image -->
-        <div class="sub-mode-switcher">
-          <button type="button" class="sub-mode-pill active" id="subModeConvertImage">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-            <span>Convert Image (JPG &bull; PNG &bull; PDF)</span>
-          </button>
-          <button type="button" class="sub-mode-pill" id="subModeConvertPdfToImg">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-            <span>PDF to Image (JPG &bull; PNG)</span>
-          </button>
-        </div>
-
-        <!-- 2A. Convert Image Wrapper -->
-        <div id="wrapConvertImage">
-        <!-- Dropzone for Converter -->
-        <div id="converterDropZone" class="dropzone" tabindex="0" role="button" aria-label="Drop Image Here to Convert Format">
-          <input type="file" id="converterFileInput" accept="image/jpeg,image/png,image/webp,image/bmp,image/gif,image/tiff" multiple style="display:none;" />
+        <!-- 1. Dropzone for Converter (Unified Image & PDF) -->
+        <div id="converterDropZone" class="dropzone" tabindex="0" role="button" aria-label="Drop Image or PDF Here to Convert Format">
+          <input type="file" id="converterFileInput" accept="image/jpeg,image/png,image/webp,image/bmp,image/gif,image/tiff,application/pdf" multiple style="display:none;" />
           <div class="dropzone-icon converter-glow-icon">
             <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
               <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
@@ -781,12 +729,14 @@
               <polyline points="21 21 21 16 16 16"></polyline>
             </svg>
           </div>
-          <h2 class="dropzone-title">Drop your image here to convert format</h2>
-          <p class="dropzone-sub">Convert instantly to JPG, PNG, WebP, or PDF &bull; 100% Client-Side Privacy</p>
-          <button type="button" class="btn-browse" id="btnConverterBrowse">Select Image to Convert</button>
+          <h2 class="dropzone-title">Drop your image or PDF here to convert format</h2>
+          <p class="dropzone-sub">Convert JPG, PNG, WebP &amp; PDF vice-versa &bull; 100% Client-Side Privacy</p>
+          <button type="button" class="btn-browse" id="btnConverterBrowse">Select Image or PDF to Convert</button>
 
           <div class="sample-trigger-row">
-            <button type="button" class="btn-sample" id="btnSampleConverter">Don't have a photo? Try a sample image &rarr;</button>
+            <button type="button" class="btn-sample" id="btnSampleConverter">Don't have a photo? Try sample image &rarr;</button>
+            <span style="color:var(--text-muted);">&bull;</span>
+            <button type="button" class="btn-sample" id="btnSamplePdfToImage">Try sample PDF certificate &rarr;</button>
           </div>
 
           <div class="converter-supported-badges">
@@ -959,39 +909,10 @@
               <div class="batch-list" id="converterBatchList"></div>
             </div>
           </div>
-        </div> <!-- end #wrapConvertImage -->
 
-        <!-- 2B. PDF to Image Converter Wrapper (Vice Versa) -->
-        <div id="wrapConvertPdfToImg" style="display:none;">
-          <!-- Dropzone for PDF to Image -->
-          <div id="pdfToImageDropZone" class="dropzone" tabindex="0" role="button" aria-label="Drop PDF Document Here to Extract Images">
-            <input type="file" id="pdfToImageFileInput" accept="application/pdf" style="display:none;" />
-            <div class="dropzone-icon pdf-img-glow-icon">
-              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                <circle cx="8.5" cy="8.5" r="1.5"></circle>
-                <polyline points="21 15 16 10 5 21"></polyline>
-              </svg>
-            </div>
-            <h2 class="dropzone-title">Drop PDF here to convert to JPG, PNG, or WebP</h2>
-            <p class="dropzone-sub">Extract high-resolution images from every page &bull; Instant ZIP download</p>
-            <button type="button" class="btn-browse" id="btnPdfToImageBrowse">Select PDF Document</button>
-
-            <div class="sample-trigger-row">
-              <button type="button" class="btn-sample" id="btnSamplePdfToImage">Don't have a PDF? Try a sample exam certificate &rarr;</button>
-            </div>
-
-            <div class="converter-supported-badges">
-              <span class="fmt-pill">Convert to JPG</span>
-              <span class="fmt-pill">Convert to PNG</span>
-              <span class="fmt-pill">Convert to WebP</span>
-              <span class="fmt-pill">High 200 DPI</span>
-              <span class="fmt-pill">Batch ZIP Export</span>
-            </div>
-          </div>
-
-          <!-- PDF to Image Editor Stage -->
-          <div id="pdfToImageEditorStage" class="editor-stage">
+        <!-- 3. Active PDF to Image Editor Stage (Vice Versa) -->
+        <div id="pdfToImageEditorStage" class="editor-stage">
+          <input type="file" id="pdfToImageFileInput" accept="application/pdf" style="display:none;" />
             <!-- File Specs Bar -->
             <div class="file-info-bar">
               <div class="file-meta-group">
@@ -1066,9 +987,8 @@
               </div>
             </div>
           </div>
-        </div>
-      </section>
-    </div>
+        </section>
+      </div>
 
 
       <!-- Section: Step by Step Workflow -->

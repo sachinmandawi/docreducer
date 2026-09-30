@@ -152,22 +152,11 @@ const converterBatchCount = document.getElementById('converterBatchCount');
 const converterBatchList = document.getElementById('converterBatchList');
 const btnConverterDownloadZip = document.getElementById('btnConverterDownloadZip');
 
-// Sub-Mode Switcher DOM
-const subModeCompressImage = document.getElementById('subModeCompressImage');
-const subModeCompressPdf = document.getElementById('subModeCompressPdf');
-const wrapCompressImage = document.getElementById('wrapCompressImage');
-const wrapCompressPdf = document.getElementById('wrapCompressPdf');
-
-const subModeConvertImage = document.getElementById('subModeConvertImage');
-const subModeConvertPdfToImg = document.getElementById('subModeConvertPdfToImg');
-const wrapConvertImage = document.getElementById('wrapConvertImage');
-const wrapConvertPdfToImg = document.getElementById('wrapConvertPdfToImg');
+// PDF Format Card DOM
 const cardPdfFmtWebp = document.getElementById('cardPdfFmtWebp');
 
 // PDF Compressor DOM
-const pdfCompressDropZone = document.getElementById('pdfCompressDropZone');
 const pdfCompressFileInput = document.getElementById('pdfCompressFileInput');
-const btnPdfCompressBrowse = document.getElementById('btnPdfCompressBrowse');
 const btnSamplePdfCompress = document.getElementById('btnSamplePdfCompress');
 
 const pdfCompressEditorStage = document.getElementById('pdfCompressEditorStage');
@@ -194,9 +183,7 @@ const btnDownloadPdfText = document.getElementById('btnDownloadPdfText');
 const btnPdfReset = document.getElementById('btnPdfReset');
 
 // PDF to Image DOM
-const pdfToImageDropZone = document.getElementById('pdfToImageDropZone');
 const pdfToImageFileInput = document.getElementById('pdfToImageFileInput');
-const btnPdfToImageBrowse = document.getElementById('btnPdfToImageBrowse');
 const btnSamplePdfToImage = document.getElementById('btnSamplePdfToImage');
 
 const pdfToImageEditorStage = document.getElementById('pdfToImageEditorStage');
@@ -484,10 +471,9 @@ function setupEventListeners() {
 async function handleFilesSelected(files) {
   if (!files || files.length === 0) return;
 
-  // Smart cross-drop: If user dropped a PDF into Image Compress, route to PDF Compress
+  // Unified dropzone: If user dropped or selected a PDF into Compress, route directly to PDF Compress
   const firstFile = files[0];
   if (firstFile && (firstFile.type === 'application/pdf' || /\.pdf$/i.test(firstFile.name))) {
-    switchCompressSubMode('pdf');
     handlePdfCompressFile(firstFile);
     return;
   }
@@ -498,7 +484,7 @@ async function handleFilesSelected(files) {
   };
   const imageFiles = files.filter(isImageFile);
   if (imageFiles.length === 0) {
-    alert('Please select valid image files (JPG, PNG, WebP).');
+    alert('Please select valid image or PDF files.');
     return;
   }
 
@@ -516,6 +502,10 @@ async function handleFilesSelected(files) {
     imgPreviewOriginal.src = dataUrl;
 
     dropZone.style.display = 'none';
+    if (pdfCompressEditorStage) {
+      pdfCompressEditorStage.style.display = 'none';
+      pdfCompressEditorStage.classList.remove('active');
+    }
     editorStage.style.display = 'block';
     editorStage.classList.add('active');
 
@@ -640,6 +630,10 @@ function resetTool() {
   dropZone.style.display = 'block';
   editorStage.style.display = 'none';
   editorStage.classList.remove('active');
+  if (pdfCompressEditorStage) {
+    pdfCompressEditorStage.style.display = 'none';
+    pdfCompressEditorStage.classList.remove('active');
+  }
   batchQueueContainer.classList.remove('active');
 }
 
@@ -662,7 +656,7 @@ async function fetchSamplePhotoFile() {
       if (response.ok) {
         const blob = await response.blob();
         if (blob && blob.size > 1000) {
-          return new File([blob], 'alexas_fotos-cat-7290531.jpg', { type: 'image/jpeg' });
+          return new File([blob], 'sample-image.jpg', { type: 'image/jpeg' });
         }
       }
     } catch (e) {
@@ -1039,7 +1033,7 @@ function closeAllDropdowns(exceptElement = null) {
 }
 
 /**
- * Setup Tool Switcher (Compress vs Convert) & Sub-Modes
+ * Setup Tool Switcher (Compress vs Convert)
  */
 function setupToolSwitcher() {
   if (tabSwitchCompressor) {
@@ -1047,52 +1041,6 @@ function setupToolSwitcher() {
   }
   if (tabSwitchConverter) {
     tabSwitchConverter.addEventListener('click', () => switchTool('converter'));
-  }
-
-  // Category 1 Sub-modes (Compress Image vs Compress PDF)
-  if (subModeCompressImage) {
-    subModeCompressImage.addEventListener('click', () => switchCompressSubMode('image'));
-  }
-  if (subModeCompressPdf) {
-    subModeCompressPdf.addEventListener('click', () => switchCompressSubMode('pdf'));
-  }
-
-  // Category 2 Sub-modes (Convert Image vs PDF to Image)
-  if (subModeConvertImage) {
-    subModeConvertImage.addEventListener('click', () => switchConvertSubMode('image'));
-  }
-  if (subModeConvertPdfToImg) {
-    subModeConvertPdfToImg.addEventListener('click', () => switchConvertSubMode('pdf_to_img'));
-  }
-}
-
-function switchCompressSubMode(mode) {
-  if (mode === 'pdf') {
-    if (subModeCompressPdf) subModeCompressPdf.classList.add('active');
-    if (subModeCompressImage) subModeCompressImage.classList.remove('active');
-    if (wrapCompressPdf) wrapCompressPdf.style.display = 'block';
-    if (wrapCompressImage) wrapCompressImage.style.display = 'none';
-    if (pdfTargetKbSlider) updateSliderProgress(pdfTargetKbSlider);
-  } else {
-    if (subModeCompressImage) subModeCompressImage.classList.add('active');
-    if (subModeCompressPdf) subModeCompressPdf.classList.remove('active');
-    if (wrapCompressImage) wrapCompressImage.style.display = 'block';
-    if (wrapCompressPdf) wrapCompressPdf.style.display = 'none';
-    if (targetKbSlider) updateSliderProgress(targetKbSlider);
-  }
-}
-
-function switchConvertSubMode(mode) {
-  if (mode === 'pdf_to_img') {
-    if (subModeConvertPdfToImg) subModeConvertPdfToImg.classList.add('active');
-    if (subModeConvertImage) subModeConvertImage.classList.remove('active');
-    if (wrapConvertPdfToImg) wrapConvertPdfToImg.style.display = 'block';
-    if (wrapConvertImage) wrapConvertImage.style.display = 'none';
-  } else {
-    if (subModeConvertImage) subModeConvertImage.classList.add('active');
-    if (subModeConvertPdfToImg) subModeConvertPdfToImg.classList.remove('active');
-    if (wrapConvertImage) wrapConvertImage.style.display = 'block';
-    if (wrapConvertPdfToImg) wrapConvertPdfToImg.style.display = 'none';
   }
 }
 
@@ -1321,17 +1269,16 @@ function setupConverterTool() {
 async function handleConverterFilesSelected(files) {
   if (!files || files.length === 0) return;
 
-  // Smart cross-drop: If user dropped a PDF into Image Converter, route to PDF to Image
+  // Unified dropzone: If user dropped or selected a PDF into Converter, route directly to PDF to Image
   const firstFile = files[0];
   if (firstFile && (firstFile.type === 'application/pdf' || /\.pdf$/i.test(firstFile.name))) {
-    switchConvertSubMode('pdf_to_img');
     handlePdfToImageFile(firstFile);
     return;
   }
 
   const imageFiles = files.filter(f => f.type.startsWith('image/') || f.name.match(/\.(jpe?g|png|webp|bmp|gif|tiff|svg)$/i));
   if (imageFiles.length === 0) {
-    alert('Please select valid image files (JPG, PNG, WebP, BMP, GIF).');
+    alert('Please select valid image or PDF files.');
     return;
   }
 
@@ -1349,6 +1296,10 @@ async function handleConverterFilesSelected(files) {
     converterThumbMini.src = dataUrl;
 
     converterDropZone.style.display = 'none';
+    if (pdfToImageEditorStage) {
+      pdfToImageEditorStage.style.display = 'none';
+      pdfToImageEditorStage.classList.remove('active');
+    }
     converterEditorStage.style.display = 'block';
     converterEditorStage.classList.add('active');
 
@@ -1546,6 +1497,10 @@ function resetConverter() {
   converterFileInput.value = '';
   converterEditorStage.style.display = 'none';
   converterEditorStage.classList.remove('active');
+  if (pdfToImageEditorStage) {
+    pdfToImageEditorStage.style.display = 'none';
+    pdfToImageEditorStage.classList.remove('active');
+  }
   converterDropZone.style.display = 'block';
   converterBatchQueue.style.display = 'none';
   converterBatchList.innerHTML = '';
@@ -1555,50 +1510,13 @@ function resetConverter() {
  * Setup PDF Compressor Tool (Category 1: Sub-mode PDF)
  */
 function setupPdfCompressTool() {
-  if (!pdfCompressDropZone || !pdfCompressFileInput) return;
-
-  // Browse click
-  if (btnPdfCompressBrowse) {
-    btnPdfCompressBrowse.addEventListener('click', (e) => {
-      e.stopPropagation();
-      pdfCompressFileInput.click();
+  if (pdfCompressFileInput) {
+    pdfCompressFileInput.addEventListener('change', (e) => {
+      if (e.target.files && e.target.files.length > 0) {
+        handlePdfCompressFile(e.target.files[0]);
+      }
     });
   }
-
-  pdfCompressDropZone.addEventListener('click', () => {
-    pdfCompressFileInput.click();
-  });
-
-  pdfCompressFileInput.addEventListener('change', (e) => {
-    if (e.target.files && e.target.files.length > 0) {
-      handlePdfCompressFile(e.target.files[0]);
-    }
-  });
-
-  // Drag and Drop
-  pdfCompressDropZone.addEventListener('dragover', (e) => {
-    e.preventDefault();
-    pdfCompressDropZone.classList.add('drag-active');
-  });
-
-  pdfCompressDropZone.addEventListener('dragleave', () => {
-    pdfCompressDropZone.classList.remove('drag-active');
-  });
-
-  pdfCompressDropZone.addEventListener('drop', (e) => {
-    e.preventDefault();
-    pdfCompressDropZone.classList.remove('drag-active');
-    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-      const droppedFile = e.dataTransfer.files[0];
-      if (droppedFile.type.startsWith('image/')) {
-        // Smart cross-drop: User dropped image into PDF compress
-        switchCompressSubMode('image');
-        handleFilesSelected([droppedFile]);
-      } else {
-        handlePdfCompressFile(droppedFile);
-      }
-    }
-  });
 
   // Sample PDF Button
   if (btnSamplePdfCompress) {
@@ -1623,7 +1541,8 @@ function setupPdfCompressTool() {
   // Change PDF Button
   if (btnPdfChangeFile) {
     btnPdfChangeFile.addEventListener('click', () => {
-      pdfCompressFileInput.click();
+      if (pdfCompressFileInput) pdfCompressFileInput.click();
+      else if (fileInput) fileInput.click();
     });
   }
 
@@ -1687,7 +1606,11 @@ async function handlePdfCompressFile(file) {
   if (pdfDisplayFileName) pdfDisplayFileName.textContent = file.name;
   if (pdfDisplayFileSpecs) pdfDisplayFileSpecs.textContent = `${formatBytes(file.size)}`;
 
-  if (pdfCompressDropZone) pdfCompressDropZone.style.display = 'none';
+  if (dropZone) dropZone.style.display = 'none';
+  if (editorStage) {
+    editorStage.style.display = 'none';
+    editorStage.classList.remove('active');
+  }
   if (pdfCompressEditorStage) {
     pdfCompressEditorStage.style.display = 'block';
     pdfCompressEditorStage.classList.add('active');
@@ -1696,6 +1619,7 @@ async function handlePdfCompressFile(file) {
   const defaultKb = (pdfTargetKbInput && parseInt(pdfTargetKbInput.value, 10)) || 100;
   setPdfTargetKB(defaultKb);
 }
+
 
 function setPdfTargetKB(kb) {
   if (pdfTargetKbInput) pdfTargetKbInput.value = kb;
@@ -1772,60 +1696,29 @@ function resetPdfCompressTool() {
   currentPdfFile = null;
   currentPdfResult = null;
   if (pdfCompressFileInput) pdfCompressFileInput.value = '';
+  if (fileInput) fileInput.value = '';
   if (pdfCompressEditorStage) {
     pdfCompressEditorStage.style.display = 'none';
     pdfCompressEditorStage.classList.remove('active');
   }
-  if (pdfCompressDropZone) pdfCompressDropZone.style.display = 'block';
+  if (editorStage) {
+    editorStage.style.display = 'none';
+    editorStage.classList.remove('active');
+  }
+  if (dropZone) dropZone.style.display = 'block';
 }
 
 /**
  * Setup PDF to Image Converter (Category 2: Sub-mode PDF to Image)
  */
 function setupPdfToImageTool() {
-  if (!pdfToImageDropZone || !pdfToImageFileInput) return;
-
-  if (btnPdfToImageBrowse) {
-    btnPdfToImageBrowse.addEventListener('click', (e) => {
-      e.stopPropagation();
-      pdfToImageFileInput.click();
+  if (pdfToImageFileInput) {
+    pdfToImageFileInput.addEventListener('change', (e) => {
+      if (e.target.files && e.target.files.length > 0) {
+        handlePdfToImageFile(e.target.files[0]);
+      }
     });
   }
-
-  pdfToImageDropZone.addEventListener('click', () => {
-    pdfToImageFileInput.click();
-  });
-
-  pdfToImageFileInput.addEventListener('change', (e) => {
-    if (e.target.files && e.target.files.length > 0) {
-      handlePdfToImageFile(e.target.files[0]);
-    }
-  });
-
-  // Drag & drop
-  pdfToImageDropZone.addEventListener('dragover', (e) => {
-    e.preventDefault();
-    pdfToImageDropZone.classList.add('drag-active');
-  });
-
-  pdfToImageDropZone.addEventListener('dragleave', () => {
-    pdfToImageDropZone.classList.remove('drag-active');
-  });
-
-  pdfToImageDropZone.addEventListener('drop', (e) => {
-    e.preventDefault();
-    pdfToImageDropZone.classList.remove('drag-active');
-    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-      const droppedFile = e.dataTransfer.files[0];
-      if (droppedFile.type.startsWith('image/')) {
-        // Smart cross-drop: User dropped image into PDF to Image
-        switchConvertSubMode('image');
-        handleConverterFilesSelected([droppedFile]);
-      } else {
-        handlePdfToImageFile(droppedFile);
-      }
-    }
-  });
 
   // Sample PDF Button
   if (btnSamplePdfToImage) {
@@ -1850,7 +1743,8 @@ function setupPdfToImageTool() {
   // Change PDF Button
   if (btnPdfImgChangeFile) {
     btnPdfImgChangeFile.addEventListener('click', () => {
-      pdfToImageFileInput.click();
+      if (pdfToImageFileInput) pdfToImageFileInput.click();
+      else if (converterFileInput) converterFileInput.click();
     });
   }
 
@@ -1917,7 +1811,11 @@ async function handlePdfToImageFile(file) {
   if (pdfImgDisplayFileName) pdfImgDisplayFileName.textContent = file.name;
   if (pdfImgDisplayFileSpecs) pdfImgDisplayFileSpecs.textContent = `${formatBytes(file.size)}`;
 
-  if (pdfToImageDropZone) pdfToImageDropZone.style.display = 'none';
+  if (converterDropZone) converterDropZone.style.display = 'none';
+  if (converterEditorStage) {
+    converterEditorStage.style.display = 'none';
+    converterEditorStage.classList.remove('active');
+  }
   if (pdfToImageEditorStage) {
     pdfToImageEditorStage.style.display = 'block';
     pdfToImageEditorStage.classList.add('active');
@@ -1925,6 +1823,7 @@ async function handlePdfToImageFile(file) {
 
   await runPdfToImageExtraction();
 }
+
 
 async function runPdfToImageExtraction() {
   if (!currentPdfImgFile || isExtractingPdf) return;
@@ -1993,11 +1892,16 @@ function resetPdfToImageTool() {
   currentPdfImgFile = null;
   currentPdfImgPages = [];
   if (pdfToImageFileInput) pdfToImageFileInput.value = '';
+  if (converterFileInput) converterFileInput.value = '';
   if (pdfToImageEditorStage) {
     pdfToImageEditorStage.style.display = 'none';
     pdfToImageEditorStage.classList.remove('active');
   }
-  if (pdfToImageDropZone) pdfToImageDropZone.style.display = 'block';
+  if (converterEditorStage) {
+    converterEditorStage.style.display = 'none';
+    converterEditorStage.classList.remove('active');
+  }
+  if (converterDropZone) converterDropZone.style.display = 'block';
   if (pdfPagesGrid) pdfPagesGrid.innerHTML = '';
 }
 
