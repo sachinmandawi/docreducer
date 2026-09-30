@@ -4,6 +4,7 @@
 > *Zero Uploads • Absolute Privacy • Exact Target KB Engine • Tailored for Govt Exams & High-Performance Web*
 
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-sachinmandawi.github.io%2Fsahikagaz-4f46e5?style=for-the-badge&logo=githubpages&logoColor=white)](https://sachinmandawi.github.io/sahikagaz/)
+[![Deploy Status](https://img.shields.io/github/actions/workflow/status/sachinmandawi/sahikagaz/deploy.yml?branch=main&label=Deploy&style=for-the-badge&logo=githubactions&logoColor=white)](https://github.com/sachinmandawi/sahikagaz/actions/workflows/deploy.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](LICENSE)
 [![Built with Vite](https://img.shields.io/badge/Vite-8.x-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
 [![Privacy: 100% Local](https://img.shields.io/badge/Privacy-100%25%20Client--Side-10b981?style=for-the-badge&logo=shield&logoColor=white)](#privacy-guarantee)
