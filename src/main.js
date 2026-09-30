@@ -927,7 +927,7 @@ function closeLegalModal() {
 
 function checkUrlHash() {
   const hash = window.location.hash.replace('#', '');
-  if (['privacy', 'terms', 'about', 'contact'].includes(hash)) {
+  if (['privacy', 'terms', 'about', 'contact', 'disclaimer'].includes(hash)) {
     openLegalModal(hash);
   }
 }

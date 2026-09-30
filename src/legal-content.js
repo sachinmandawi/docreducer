@@ -72,6 +72,24 @@ export const LEGAL_PAGES = {
     `
   },
 
+  disclaimer: {
+    title: 'Disclaimer',
+    lastUpdated: 'March 2026',
+    content: `
+      <h3>1. General Utility & Educational Purpose</h3>
+      <p>The image compression and document conversion utilities on <strong>SahiKagaz</strong> are provided to assist candidates and web users in meeting strict digital upload requirements. All operations run 100% locally in your web browser.</p>
+
+      <h3>2. No Government Affiliation</h3>
+      <p>SahiKagaz is an independent developer project. It is <strong>NOT affiliated, associated, authorized, endorsed by, or officially connected with any government organization</strong>, recruiting body (such as SSC, UPSC, IBPS, State PSCs), or educational board (such as NTA, CBSE). Official government portals are separate, and users must refer to respective official websites for application submissions.</p>
+
+      <h3>3. Exam Portal Specifications</h3>
+      <p>While our dimension and KB presets are regularly updated based on published guidelines, recruitment bodies periodically update their requirements. Candidates are advised to cross-check latest official guidelines before final form submission.</p>
+
+      <h3>4. Contact & Queries</h3>
+      <p>For any questions or feedback regarding this disclaimer, please contact: <a href="mailto:sachinmandawi@gmail.com"><strong>sachinmandawi@gmail.com</strong></a>.</p>
+    `
+  },
+
   about: {
     title: 'About SahiKagaz',
     lastUpdated: 'March 2026',

@@ -3,6 +3,8 @@
  * Converts images between JPG, PNG, WebP, and PDF (100% Client-Side Canvas & jsPDF)
  */
 
+import { jsPDF } from 'jspdf';
+
 /**
  * Convert Image to Target Format (JPG, PNG, WebP, PDF)
  * @param {HTMLImageElement} img - Preloaded Image object
@@ -17,7 +19,6 @@ export async function convertFormat(img, file, targetFormat = 'image/jpeg', opti
 
   // Case 1: PDF Document Generation
   if (targetFormat === 'application/pdf') {
-    const { jsPDF } = await import('jspdf');
     const isA4 = options.pdfLayout === 'a4';
     let pdf;
     let imgRenderX = 0;
