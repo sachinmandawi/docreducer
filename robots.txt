@@ -1,0 +1,15 @@
+# robots.txt for SahiKagaz (https://sahikagaz.com)
+User-agent: *
+Allow: /
+
+# Google AdSense Review Crawler
+User-agent: Mediapartners-Google
+Allow: /
+
+# Google Search Indexing Crawler
+User-agent: Googlebot
+Allow: /
+Allow: /src/style.css
+Allow: /favicon.svg
+
+Sitemap: https://sahikagaz.com/sitemap.xml
