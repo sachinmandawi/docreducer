@@ -553,18 +553,88 @@ function resetTool() {
 }
 
 /**
- * Load Real Sample Photo (alexas_fotos-cat-7290531.jpg - 4.81 MB)
+ * Robust Sample Photo Loader
+ * Supports GitHub Pages subpaths, local Vite, and in-memory canvas fallback
+ */
+async function fetchSamplePhotoFile() {
+  const possibleUrls = [
+    new URL('sample-photo.jpg', window.location.href).href,
+    './sample-photo.jpg',
+    'sample-photo.jpg',
+    '/sahikagaz/sample-photo.jpg',
+    '/sample-photo.jpg'
+  ];
+
+  for (const url of possibleUrls) {
+    try {
+      const response = await fetch(url);
+      if (response.ok) {
+        const blob = await response.blob();
+        if (blob && blob.size > 1000) {
+          return new File([blob], 'alexas_fotos-cat-7290531.jpg', { type: 'image/jpeg' });
+        }
+      }
+    } catch (e) {
+      // Continue to next URL candidate
+    }
+  }
+
+  // Resilient Fallback: Generate a crisp high-res 1920x1280 sample image on canvas
+  const canvas = document.createElement('canvas');
+  canvas.width = 1920;
+  canvas.height = 1280;
+  const ctx = canvas.getContext('2d');
+
+  const grad = ctx.createLinearGradient(0, 0, 1920, 1280);
+  grad.addColorStop(0, '#4f46e5');
+  grad.addColorStop(0.5, '#7c3aed');
+  grad.addColorStop(1, '#06b6d4');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, 1920, 1280);
+
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.12)';
+  for (let i = 0; i < 40; i++) {
+    ctx.beginPath();
+    ctx.arc((i * 97) % 1920, (i * 131) % 1280, (i * 19) % 160 + 20, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  ctx.fillStyle = '#ffffff';
+  ctx.beginPath();
+  if (typeof ctx.roundRect === 'function') {
+    ctx.roundRect(460, 320, 1000, 640, 32);
+  } else {
+    ctx.rect(460, 320, 1000, 640);
+  }
+  ctx.fill();
+
+  ctx.fillStyle = '#1e1b4b';
+  ctx.font = 'bold 56px system-ui, -apple-system, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('SahiKagaz Sample Photo', 960, 560);
+
+  ctx.fillStyle = '#6b7280';
+  ctx.font = '500 28px system-ui, -apple-system, sans-serif';
+  ctx.fillText('High-Resolution Test Document (1920 \u00d7 1280)', 960, 630);
+  ctx.fillText('Ready for instant MB to KB compression', 960, 680);
+
+  return new Promise((resolve) => {
+    canvas.toBlob((blob) => {
+      resolve(new File([blob], 'sahikagaz-sample-document.jpg', { type: 'image/jpeg' }));
+    }, 'image/jpeg', 0.95);
+  });
+}
+
+/**
+ * Load Real Sample Photo
  */
 async function loadSamplePhoto() {
   const originalText = btnSamplePhoto.textContent;
-  btnSamplePhoto.textContent = 'Loading sample photo (4.8 MB)...';
+  btnSamplePhoto.textContent = 'Loading sample photo...';
   btnSamplePhoto.disabled = true;
 
   try {
-    const response = await fetch('/sample-photo.jpg');
-    if (!response.ok) throw new Error('Could not fetch sample photo');
-    const blob = await response.blob();
-    const sampleFile = new File([blob], 'alexas_fotos-cat-7290531.jpg', { type: 'image/jpeg' });
+    const sampleFile = await fetchSamplePhotoFile();
     await handleFilesSelected([sampleFile]);
   } catch (err) {
     console.error('Failed to load sample image:', err);
@@ -1157,10 +1227,7 @@ async function loadSampleConverter() {
     btnSampleConverter.textContent = 'Loading Sample Image...';
     btnSampleConverter.disabled = true;
 
-    const response = await fetch('/sample-photo.jpg');
-    if (!response.ok) throw new Error('Could not fetch sample photo');
-    const blob = await response.blob();
-    const sampleFile = new File([blob], 'alexas_fotos-cat-7290531.jpg', { type: 'image/jpeg' });
+    const sampleFile = await fetchSamplePhotoFile();
     await handleConverterFilesSelected([sampleFile]);
   } catch (err) {
     console.error('Failed to load sample image for converter:', err);
