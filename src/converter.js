@@ -47,22 +47,46 @@ export async function convertFormat(img, file, targetFormat = 'image/jpeg', opti
       imgRenderX = margin + (maxW - imgRenderW) / 2;
       imgRenderY = margin + (maxH - imgRenderH) / 2;
     } else {
-      const orientation = origWidth > origHeight ? 'landscape' : 'portrait';
+      // Fit to Image: match image aspect ratio exactly in standard print points
+      const maxPdfPt = 1200; // max ~16.6 inches at 72 pt/inch
+      let ptW = origWidth;
+      let ptH = origHeight;
+      if (Math.max(ptW, ptH) > maxPdfPt) {
+        const ptScale = maxPdfPt / Math.max(ptW, ptH);
+        ptW = Math.round(ptW * ptScale);
+        ptH = Math.round(ptH * ptScale);
+      }
+
+      const orientation = ptW > ptH ? 'landscape' : 'portrait';
       pdf = new jsPDF({
         orientation: orientation,
-        unit: 'px',
-        format: [origWidth, origHeight]
+        unit: 'pt',
+        format: [ptW, ptH]
       });
+
+      imgRenderX = 0;
+      imgRenderY = 0;
+      imgRenderW = ptW;
+      imgRenderH = ptH;
     }
 
-    // Draw image onto canvas to get JPEG representation for PDF
+    // Draw image onto canvas to get JPEG representation for PDF (capped at max 2560px for high-res crispness)
+    const maxCanvasDim = 2560;
+    let canvasW = origWidth;
+    let canvasH = origHeight;
+    if (Math.max(canvasW, canvasH) > maxCanvasDim) {
+      const cScale = maxCanvasDim / Math.max(canvasW, canvasH);
+      canvasW = Math.round(canvasW * cScale);
+      canvasH = Math.round(canvasH * cScale);
+    }
+
     const canvas = document.createElement('canvas');
-    canvas.width = origWidth;
-    canvas.height = origHeight;
+    canvas.width = canvasW;
+    canvas.height = canvasH;
     const ctx = canvas.getContext('2d');
     ctx.fillStyle = '#FFFFFF';
-    ctx.fillRect(0, 0, origWidth, origHeight);
-    ctx.drawImage(img, 0, 0, origWidth, origHeight);
+    ctx.fillRect(0, 0, canvasW, canvasH);
+    ctx.drawImage(img, 0, 0, canvasW, canvasH);
     const jpegDataUrl = canvas.toDataURL('image/jpeg', quality);
 
     pdf.addImage(jpegDataUrl, 'JPEG', imgRenderX, imgRenderY, imgRenderW, imgRenderH);

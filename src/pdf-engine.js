@@ -32,7 +32,17 @@ export async function loadPdfDocument(file) {
  */
 export async function renderPdfPageToCanvas(pdfDoc, pageNum, scale = 1.5) {
   const page = await pdfDoc.getPage(pageNum);
-  const viewport = page.getViewport({ scale });
+  const baseViewport = page.getViewport({ scale: 1.0 });
+  const maxDim = Math.max(baseViewport.width, baseViewport.height);
+
+  // Safeguard against runaway canvas dimensions (cap at 2400px for crisp high-DPI clarity without browser memory exhaustion)
+  const maxAllowedDim = 2400;
+  let effectiveScale = scale;
+  if (maxDim * scale > maxAllowedDim) {
+    effectiveScale = Math.max(0.5, maxAllowedDim / maxDim);
+  }
+
+  const viewport = page.getViewport({ scale: effectiveScale });
   
   const canvas = document.createElement('canvas');
   canvas.width = Math.round(viewport.width);

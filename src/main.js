@@ -1402,7 +1402,7 @@ async function runConversion() {
       btnConverterCopy.style.display = 'none';
     } else {
       converterPdfPreviewCard.style.display = 'none';
-      converterImgPreviewWrap.style.display = 'block';
+      converterImgPreviewWrap.style.display = 'flex';
       imgPreviewConverted.src = res.url;
       btnConverterCopy.style.display = 'inline-flex';
     }
