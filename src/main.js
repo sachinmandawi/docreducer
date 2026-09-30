@@ -3,6 +3,12 @@ import { formatBytes, loadImage, compressToTargetKB } from './compressor.js';
 import { convertFormat } from './converter.js';
 import { initAdSense, renderAd } from './ads-config.js';
 import { LEGAL_PAGES } from './legal-content.js';
+import {
+  compressPdfToTargetKB,
+  convertPdfToImages,
+  downloadPagesAsZip,
+  generateSamplePdfFile
+} from './pdf-engine.js';
 import JSZip from 'jszip';
 
 // Compressor State Variables
@@ -27,6 +33,18 @@ let convResult = null;
 let isConverting = false;
 let convDebounceTimer = null;
 let convBatchQueue = [];
+
+// PDF Compressor State Variables
+let currentPdfFile = null;
+let currentPdfResult = null;
+let isCompressingPdf = false;
+let pdfDebounceTimer = null;
+
+// PDF to Image State Variables
+let currentPdfImgFile = null;
+let currentPdfImgPages = [];
+let currentPdfImgFormat = 'image/jpeg';
+let isExtractingPdf = false;
 
 // DOM References
 const dropZone = document.getElementById('dropZone');
@@ -134,6 +152,67 @@ const converterBatchCount = document.getElementById('converterBatchCount');
 const converterBatchList = document.getElementById('converterBatchList');
 const btnConverterDownloadZip = document.getElementById('btnConverterDownloadZip');
 
+// Sub-Mode Switcher DOM
+const subModeCompressImage = document.getElementById('subModeCompressImage');
+const subModeCompressPdf = document.getElementById('subModeCompressPdf');
+const wrapCompressImage = document.getElementById('wrapCompressImage');
+const wrapCompressPdf = document.getElementById('wrapCompressPdf');
+
+const subModeConvertImage = document.getElementById('subModeConvertImage');
+const subModeConvertPdfToImg = document.getElementById('subModeConvertPdfToImg');
+const wrapConvertImage = document.getElementById('wrapConvertImage');
+const wrapConvertPdfToImg = document.getElementById('wrapConvertPdfToImg');
+const cardPdfFmtWebp = document.getElementById('cardPdfFmtWebp');
+
+// PDF Compressor DOM
+const pdfCompressDropZone = document.getElementById('pdfCompressDropZone');
+const pdfCompressFileInput = document.getElementById('pdfCompressFileInput');
+const btnPdfCompressBrowse = document.getElementById('btnPdfCompressBrowse');
+const btnSamplePdfCompress = document.getElementById('btnSamplePdfCompress');
+
+const pdfCompressEditorStage = document.getElementById('pdfCompressEditorStage');
+const pdfDisplayFileName = document.getElementById('pdfDisplayFileName');
+const pdfDisplayFileSpecs = document.getElementById('pdfDisplayFileSpecs');
+const btnPdfChangeFile = document.getElementById('btnPdfChangeFile');
+
+const pdfPresetsGrid = document.getElementById('pdfPresetsGrid');
+const pdfTargetKbInput = document.getElementById('pdfTargetKbInput');
+const pdfTargetKbSlider = document.getElementById('pdfTargetKbSlider');
+const pdfTargetStatusBadge = document.getElementById('pdfTargetStatusBadge');
+
+const statPdfOriginalSize = document.getElementById('statPdfOriginalSize');
+const statPdfCompressedSize = document.getElementById('statPdfCompressedSize');
+const statPdfSavedPercent = document.getElementById('statPdfSavedPercent');
+const statPdfPagesCount = document.getElementById('statPdfPagesCount');
+
+const pdfCompressProgressWrap = document.getElementById('pdfCompressProgressWrap');
+const pdfCompressProgressText = document.getElementById('pdfCompressProgressText');
+const pdfCompressProgressBarFill = document.getElementById('pdfCompressProgressBarFill');
+
+const btnDownloadPdf = document.getElementById('btnDownloadPdf');
+const btnDownloadPdfText = document.getElementById('btnDownloadPdfText');
+const btnPdfReset = document.getElementById('btnPdfReset');
+
+// PDF to Image DOM
+const pdfToImageDropZone = document.getElementById('pdfToImageDropZone');
+const pdfToImageFileInput = document.getElementById('pdfToImageFileInput');
+const btnPdfToImageBrowse = document.getElementById('btnPdfToImageBrowse');
+const btnSamplePdfToImage = document.getElementById('btnSamplePdfToImage');
+
+const pdfToImageEditorStage = document.getElementById('pdfToImageEditorStage');
+const pdfImgDisplayFileName = document.getElementById('pdfImgDisplayFileName');
+const pdfImgDisplayFileSpecs = document.getElementById('pdfImgDisplayFileSpecs');
+const btnPdfImgChangeFile = document.getElementById('btnPdfImgChangeFile');
+
+const cardPdfFmtJpg = document.getElementById('cardPdfFmtJpg');
+const cardPdfFmtPng = document.getElementById('cardPdfFmtPng');
+const pdfImgSelectedBadge = document.getElementById('pdfImgSelectedBadge');
+
+const pdfImgExtractedCount = document.getElementById('pdfImgExtractedCount');
+const btnPdfImgDownloadZip = document.getElementById('btnPdfImgDownloadZip');
+const pdfPagesGrid = document.getElementById('pdfPagesGrid');
+const btnPdfImgReset = document.getElementById('btnPdfImgReset');
+
 /**
  * Initialize App
  */
@@ -174,6 +253,8 @@ function initApp() {
   setupEventListeners();
   setupToolSwitcher();
   setupConverterTool();
+  setupPdfCompressTool();
+  setupPdfToImageTool();
   setupFaqAccordion();
   setupLegalModalHandlers();
   setupCustomDropdowns();
@@ -401,6 +482,16 @@ function setupEventListeners() {
  * Handle Single or Multiple Selected Files
  */
 async function handleFilesSelected(files) {
+  if (!files || files.length === 0) return;
+
+  // Smart cross-drop: If user dropped a PDF into Image Compress, route to PDF Compress
+  const firstFile = files[0];
+  if (firstFile && (firstFile.type === 'application/pdf' || /\.pdf$/i.test(firstFile.name))) {
+    switchCompressSubMode('pdf');
+    handlePdfCompressFile(firstFile);
+    return;
+  }
+
   const isImageFile = (f) => {
     if (f && f.type && f.type.startsWith('image/')) return true;
     return /\.(jpe?g|png|webp|bmp|gif|tiff|svg|avif|heic)$/i.test((f && f.name) || '');
@@ -948,7 +1039,7 @@ function closeAllDropdowns(exceptElement = null) {
 }
 
 /**
- * Setup Tool Switcher (Compress vs Convert)
+ * Setup Tool Switcher (Compress vs Convert) & Sub-Modes
  */
 function setupToolSwitcher() {
   if (tabSwitchCompressor) {
@@ -956,6 +1047,52 @@ function setupToolSwitcher() {
   }
   if (tabSwitchConverter) {
     tabSwitchConverter.addEventListener('click', () => switchTool('converter'));
+  }
+
+  // Category 1 Sub-modes (Compress Image vs Compress PDF)
+  if (subModeCompressImage) {
+    subModeCompressImage.addEventListener('click', () => switchCompressSubMode('image'));
+  }
+  if (subModeCompressPdf) {
+    subModeCompressPdf.addEventListener('click', () => switchCompressSubMode('pdf'));
+  }
+
+  // Category 2 Sub-modes (Convert Image vs PDF to Image)
+  if (subModeConvertImage) {
+    subModeConvertImage.addEventListener('click', () => switchConvertSubMode('image'));
+  }
+  if (subModeConvertPdfToImg) {
+    subModeConvertPdfToImg.addEventListener('click', () => switchConvertSubMode('pdf_to_img'));
+  }
+}
+
+function switchCompressSubMode(mode) {
+  if (mode === 'pdf') {
+    if (subModeCompressPdf) subModeCompressPdf.classList.add('active');
+    if (subModeCompressImage) subModeCompressImage.classList.remove('active');
+    if (wrapCompressPdf) wrapCompressPdf.style.display = 'block';
+    if (wrapCompressImage) wrapCompressImage.style.display = 'none';
+    if (pdfTargetKbSlider) updateSliderProgress(pdfTargetKbSlider);
+  } else {
+    if (subModeCompressImage) subModeCompressImage.classList.add('active');
+    if (subModeCompressPdf) subModeCompressPdf.classList.remove('active');
+    if (wrapCompressImage) wrapCompressImage.style.display = 'block';
+    if (wrapCompressPdf) wrapCompressPdf.style.display = 'none';
+    if (targetKbSlider) updateSliderProgress(targetKbSlider);
+  }
+}
+
+function switchConvertSubMode(mode) {
+  if (mode === 'pdf_to_img') {
+    if (subModeConvertPdfToImg) subModeConvertPdfToImg.classList.add('active');
+    if (subModeConvertImage) subModeConvertImage.classList.remove('active');
+    if (wrapConvertPdfToImg) wrapConvertPdfToImg.style.display = 'block';
+    if (wrapConvertImage) wrapConvertImage.style.display = 'none';
+  } else {
+    if (subModeConvertImage) subModeConvertImage.classList.add('active');
+    if (subModeConvertPdfToImg) subModeConvertPdfToImg.classList.remove('active');
+    if (wrapConvertImage) wrapConvertImage.style.display = 'block';
+    if (wrapConvertPdfToImg) wrapConvertPdfToImg.style.display = 'none';
   }
 }
 
@@ -1182,6 +1319,16 @@ function setupConverterTool() {
  * Handle files selected in Standalone Converter
  */
 async function handleConverterFilesSelected(files) {
+  if (!files || files.length === 0) return;
+
+  // Smart cross-drop: If user dropped a PDF into Image Converter, route to PDF to Image
+  const firstFile = files[0];
+  if (firstFile && (firstFile.type === 'application/pdf' || /\.pdf$/i.test(firstFile.name))) {
+    switchConvertSubMode('pdf_to_img');
+    handlePdfToImageFile(firstFile);
+    return;
+  }
+
   const imageFiles = files.filter(f => f.type.startsWith('image/') || f.name.match(/\.(jpe?g|png|webp|bmp|gif|tiff|svg)$/i));
   if (imageFiles.length === 0) {
     alert('Please select valid image files (JPG, PNG, WebP, BMP, GIF).');
@@ -1402,6 +1549,456 @@ function resetConverter() {
   converterDropZone.style.display = 'block';
   converterBatchQueue.style.display = 'none';
   converterBatchList.innerHTML = '';
+}
+
+/**
+ * Setup PDF Compressor Tool (Category 1: Sub-mode PDF)
+ */
+function setupPdfCompressTool() {
+  if (!pdfCompressDropZone || !pdfCompressFileInput) return;
+
+  // Browse click
+  if (btnPdfCompressBrowse) {
+    btnPdfCompressBrowse.addEventListener('click', (e) => {
+      e.stopPropagation();
+      pdfCompressFileInput.click();
+    });
+  }
+
+  pdfCompressDropZone.addEventListener('click', () => {
+    pdfCompressFileInput.click();
+  });
+
+  pdfCompressFileInput.addEventListener('change', (e) => {
+    if (e.target.files && e.target.files.length > 0) {
+      handlePdfCompressFile(e.target.files[0]);
+    }
+  });
+
+  // Drag and Drop
+  pdfCompressDropZone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    pdfCompressDropZone.classList.add('drag-active');
+  });
+
+  pdfCompressDropZone.addEventListener('dragleave', () => {
+    pdfCompressDropZone.classList.remove('drag-active');
+  });
+
+  pdfCompressDropZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    pdfCompressDropZone.classList.remove('drag-active');
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      const droppedFile = e.dataTransfer.files[0];
+      if (droppedFile.type.startsWith('image/')) {
+        // Smart cross-drop: User dropped image into PDF compress
+        switchCompressSubMode('image');
+        handleFilesSelected([droppedFile]);
+      } else {
+        handlePdfCompressFile(droppedFile);
+      }
+    }
+  });
+
+  // Sample PDF Button
+  if (btnSamplePdfCompress) {
+    btnSamplePdfCompress.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      const origText = btnSamplePdfCompress.textContent;
+      try {
+        btnSamplePdfCompress.textContent = 'Generating sample certificate...';
+        btnSamplePdfCompress.disabled = true;
+        const samplePdf = await generateSamplePdfFile();
+        await handlePdfCompressFile(samplePdf);
+      } catch (err) {
+        console.error('Failed to generate sample PDF:', err);
+        showToast('Failed to generate sample PDF');
+      } finally {
+        btnSamplePdfCompress.textContent = origText;
+        btnSamplePdfCompress.disabled = false;
+      }
+    });
+  }
+
+  // Change PDF Button
+  if (btnPdfChangeFile) {
+    btnPdfChangeFile.addEventListener('click', () => {
+      pdfCompressFileInput.click();
+    });
+  }
+
+  // Reset Button
+  if (btnPdfReset) {
+    btnPdfReset.addEventListener('click', resetPdfCompressTool);
+  }
+
+  // Presets Grid
+  if (pdfPresetsGrid) {
+    pdfPresetsGrid.addEventListener('click', (e) => {
+      const chip = e.target.closest('.preset-chip');
+      if (!chip) return;
+      pdfPresetsGrid.querySelectorAll('.preset-chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      const kb = parseInt(chip.getAttribute('data-kb'), 10);
+      setPdfTargetKB(kb);
+    });
+  }
+
+  // Custom Input & Slider
+  if (pdfTargetKbInput && pdfTargetKbSlider) {
+    pdfTargetKbInput.addEventListener('input', () => {
+      let val = parseInt(pdfTargetKbInput.value, 10);
+      if (isNaN(val) || val < 10) val = 10;
+      if (val > 10000) val = 10000;
+      pdfTargetKbSlider.value = Math.min(val, 1000);
+      updateSliderProgress(pdfTargetKbSlider);
+      highlightActivePdfPreset(val);
+      debouncedRunPdfCompression();
+    });
+
+    pdfTargetKbSlider.addEventListener('input', () => {
+      const val = parseInt(pdfTargetKbSlider.value, 10);
+      pdfTargetKbInput.value = val;
+      updateSliderProgress(pdfTargetKbSlider);
+      highlightActivePdfPreset(val);
+      debouncedRunPdfCompression();
+    });
+  }
+
+  // Download Button
+  if (btnDownloadPdf) {
+    btnDownloadPdf.addEventListener('click', () => {
+      if (!currentPdfResult || !currentPdfResult.blob) return;
+      const baseName = currentPdfFile ? currentPdfFile.name.replace(/\.[^/.]+$/, '') : 'document';
+      const target = pdfTargetKbInput ? pdfTargetKbInput.value : '100';
+      downloadBlob(currentPdfResult.blob, `${baseName}_compressed_${target}kb.pdf`);
+    });
+  }
+}
+
+async function handlePdfCompressFile(file) {
+  if (!file) return;
+  if (!file.name.toLowerCase().endsWith('.pdf') && file.type !== 'application/pdf') {
+    alert('Please select a valid PDF file.');
+    return;
+  }
+
+  currentPdfFile = file;
+  if (pdfDisplayFileName) pdfDisplayFileName.textContent = file.name;
+  if (pdfDisplayFileSpecs) pdfDisplayFileSpecs.textContent = `${formatBytes(file.size)}`;
+
+  if (pdfCompressDropZone) pdfCompressDropZone.style.display = 'none';
+  if (pdfCompressEditorStage) {
+    pdfCompressEditorStage.style.display = 'block';
+    pdfCompressEditorStage.classList.add('active');
+  }
+
+  const defaultKb = (pdfTargetKbInput && parseInt(pdfTargetKbInput.value, 10)) || 100;
+  setPdfTargetKB(defaultKb);
+}
+
+function setPdfTargetKB(kb) {
+  if (pdfTargetKbInput) pdfTargetKbInput.value = kb;
+  if (pdfTargetKbSlider) {
+    pdfTargetKbSlider.value = Math.min(kb, 1000);
+    updateSliderProgress(pdfTargetKbSlider);
+  }
+  if (pdfTargetStatusBadge) pdfTargetStatusBadge.textContent = `Target: ${kb} KB`;
+  highlightActivePdfPreset(kb);
+  debouncedRunPdfCompression();
+}
+
+function highlightActivePdfPreset(kb) {
+  if (!pdfPresetsGrid) return;
+  pdfPresetsGrid.querySelectorAll('.preset-chip').forEach(c => {
+    const chipKb = parseInt(c.getAttribute('data-kb'), 10);
+    if (chipKb === kb) {
+      c.classList.add('active');
+    } else {
+      c.classList.remove('active');
+    }
+  });
+}
+
+function debouncedRunPdfCompression() {
+  clearTimeout(pdfDebounceTimer);
+  pdfDebounceTimer = setTimeout(() => {
+    runPdfCompression();
+  }, 220);
+}
+
+async function runPdfCompression() {
+  if (!currentPdfFile || isCompressingPdf) return;
+  isCompressingPdf = true;
+
+  const targetKB = (pdfTargetKbInput && parseInt(pdfTargetKbInput.value, 10)) || 100;
+  if (pdfTargetStatusBadge) pdfTargetStatusBadge.textContent = `Target: ${targetKB} KB`;
+
+  if (pdfCompressProgressWrap) pdfCompressProgressWrap.style.display = 'block';
+  if (btnDownloadPdf) btnDownloadPdf.style.opacity = '0.6';
+  if (btnDownloadPdfText) btnDownloadPdfText.textContent = 'Compressing PDF...';
+
+  try {
+    const res = await compressPdfToTargetKB(currentPdfFile, targetKB, (current, total, msg) => {
+      const pct = Math.round((current / total) * 100);
+      if (pdfCompressProgressText) pdfCompressProgressText.textContent = msg || `Processing page ${current} of ${total}...`;
+      if (pdfCompressProgressBarFill) pdfCompressProgressBarFill.style.width = `${pct}%`;
+    });
+
+    currentPdfResult = res;
+
+    // Update specs and stats
+    if (pdfDisplayFileSpecs) {
+      pdfDisplayFileSpecs.textContent = `${res.numPages} Page${res.numPages > 1 ? 's' : ''} \u2022 Original ${formatBytes(res.originalSize)}`;
+    }
+    if (statPdfOriginalSize) statPdfOriginalSize.textContent = formatBytes(res.originalSize);
+    if (statPdfCompressedSize) statPdfCompressedSize.textContent = formatBytes(res.compressedSize);
+    if (statPdfSavedPercent) statPdfSavedPercent.textContent = `-${res.savedPercent}%`;
+    if (statPdfPagesCount) statPdfPagesCount.textContent = `${res.numPages} Page${res.numPages > 1 ? 's' : ''}`;
+
+    if (btnDownloadPdfText) btnDownloadPdfText.textContent = `Download Compressed PDF (${formatBytes(res.compressedSize)})`;
+    if (btnDownloadPdf) btnDownloadPdf.style.opacity = '1';
+  } catch (err) {
+    console.error('PDF compression failed:', err);
+    if (btnDownloadPdfText) btnDownloadPdfText.textContent = 'PDF Compression Failed';
+    showToast('PDF Compression failed. Please try a different target.');
+  } finally {
+    if (pdfCompressProgressWrap) pdfCompressProgressWrap.style.display = 'none';
+    isCompressingPdf = false;
+  }
+}
+
+function resetPdfCompressTool() {
+  currentPdfFile = null;
+  currentPdfResult = null;
+  if (pdfCompressFileInput) pdfCompressFileInput.value = '';
+  if (pdfCompressEditorStage) {
+    pdfCompressEditorStage.style.display = 'none';
+    pdfCompressEditorStage.classList.remove('active');
+  }
+  if (pdfCompressDropZone) pdfCompressDropZone.style.display = 'block';
+}
+
+/**
+ * Setup PDF to Image Converter (Category 2: Sub-mode PDF to Image)
+ */
+function setupPdfToImageTool() {
+  if (!pdfToImageDropZone || !pdfToImageFileInput) return;
+
+  if (btnPdfToImageBrowse) {
+    btnPdfToImageBrowse.addEventListener('click', (e) => {
+      e.stopPropagation();
+      pdfToImageFileInput.click();
+    });
+  }
+
+  pdfToImageDropZone.addEventListener('click', () => {
+    pdfToImageFileInput.click();
+  });
+
+  pdfToImageFileInput.addEventListener('change', (e) => {
+    if (e.target.files && e.target.files.length > 0) {
+      handlePdfToImageFile(e.target.files[0]);
+    }
+  });
+
+  // Drag & drop
+  pdfToImageDropZone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    pdfToImageDropZone.classList.add('drag-active');
+  });
+
+  pdfToImageDropZone.addEventListener('dragleave', () => {
+    pdfToImageDropZone.classList.remove('drag-active');
+  });
+
+  pdfToImageDropZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    pdfToImageDropZone.classList.remove('drag-active');
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      const droppedFile = e.dataTransfer.files[0];
+      if (droppedFile.type.startsWith('image/')) {
+        // Smart cross-drop: User dropped image into PDF to Image
+        switchConvertSubMode('image');
+        handleConverterFilesSelected([droppedFile]);
+      } else {
+        handlePdfToImageFile(droppedFile);
+      }
+    }
+  });
+
+  // Sample PDF Button
+  if (btnSamplePdfToImage) {
+    btnSamplePdfToImage.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      const origText = btnSamplePdfToImage.textContent;
+      try {
+        btnSamplePdfToImage.textContent = 'Generating sample certificate...';
+        btnSamplePdfToImage.disabled = true;
+        const samplePdf = await generateSamplePdfFile();
+        await handlePdfToImageFile(samplePdf);
+      } catch (err) {
+        console.error('Failed to generate sample PDF:', err);
+        showToast('Failed to generate sample PDF');
+      } finally {
+        btnSamplePdfToImage.textContent = origText;
+        btnSamplePdfToImage.disabled = false;
+      }
+    });
+  }
+
+  // Change PDF Button
+  if (btnPdfImgChangeFile) {
+    btnPdfImgChangeFile.addEventListener('click', () => {
+      pdfToImageFileInput.click();
+    });
+  }
+
+  // Reset Button
+  if (btnPdfImgReset) {
+    btnPdfImgReset.addEventListener('click', resetPdfToImageTool);
+  }
+
+  // Format selection cards (JPG, PNG, WebP)
+  const formatCards = [
+    { card: cardPdfFmtJpg, fmt: 'image/jpeg', name: 'JPG' },
+    { card: cardPdfFmtPng, fmt: 'image/png', name: 'PNG' },
+    { card: cardPdfFmtWebp, fmt: 'image/webp', name: 'WebP' }
+  ];
+
+  formatCards.forEach(({ card, fmt, name }) => {
+    if (!card) return;
+    card.addEventListener('click', () => {
+      formatCards.forEach(c => {
+        if (c.card) {
+          c.card.classList.remove('active');
+          c.card.setAttribute('aria-checked', 'false');
+        }
+      });
+      card.classList.add('active');
+      card.setAttribute('aria-checked', 'true');
+      currentPdfImgFormat = fmt;
+      if (pdfImgSelectedBadge) pdfImgSelectedBadge.textContent = `Output: ${name}`;
+      if (currentPdfImgFile) {
+        runPdfToImageExtraction();
+      }
+    });
+  });
+
+  // Download All as ZIP
+  if (btnPdfImgDownloadZip) {
+    btnPdfImgDownloadZip.addEventListener('click', async () => {
+      if (currentPdfImgPages.length === 0) return;
+      const origText = btnPdfImgDownloadZip.textContent;
+      try {
+        btnPdfImgDownloadZip.textContent = 'Generating ZIP...';
+        btnPdfImgDownloadZip.disabled = true;
+        const baseName = currentPdfImgFile ? currentPdfImgFile.name.replace(/\.[^/.]+$/, '') : 'document';
+        await downloadPagesAsZip(currentPdfImgPages, `${baseName}_extracted_pages.zip`);
+      } catch (err) {
+        console.error('Failed to create ZIP:', err);
+        showToast('Failed to create ZIP file');
+      } finally {
+        btnPdfImgDownloadZip.textContent = origText;
+        btnPdfImgDownloadZip.disabled = false;
+      }
+    });
+  }
+}
+
+async function handlePdfToImageFile(file) {
+  if (!file) return;
+  if (!file.name.toLowerCase().endsWith('.pdf') && file.type !== 'application/pdf') {
+    alert('Please select a valid PDF file.');
+    return;
+  }
+
+  currentPdfImgFile = file;
+  if (pdfImgDisplayFileName) pdfImgDisplayFileName.textContent = file.name;
+  if (pdfImgDisplayFileSpecs) pdfImgDisplayFileSpecs.textContent = `${formatBytes(file.size)}`;
+
+  if (pdfToImageDropZone) pdfToImageDropZone.style.display = 'none';
+  if (pdfToImageEditorStage) {
+    pdfToImageEditorStage.style.display = 'block';
+    pdfToImageEditorStage.classList.add('active');
+  }
+
+  await runPdfToImageExtraction();
+}
+
+async function runPdfToImageExtraction() {
+  if (!currentPdfImgFile || isExtractingPdf) return;
+  isExtractingPdf = true;
+
+  if (pdfPagesGrid) {
+    pdfPagesGrid.innerHTML = `
+      <div style="grid-column: 1 / -1; text-align: center; padding: 40px 20px; color: var(--text-secondary);">
+        <div class="pdf-spinner" style="display:inline-block; width:32px; height:32px; border:3px solid var(--border-color); border-top-color:var(--primary-color); border-radius:50%; animation:spin 0.8s linear infinite; margin-bottom:12px;"></div>
+        <p>Extracting high-resolution pages from PDF...</p>
+      </div>
+    `;
+  }
+
+  try {
+    const result = await convertPdfToImages(currentPdfImgFile, currentPdfImgFormat, 0.92);
+    currentPdfImgPages = result.pages;
+
+    if (pdfImgDisplayFileSpecs) {
+      pdfImgDisplayFileSpecs.textContent = `${result.numPages} Page${result.numPages > 1 ? 's' : ''} \u2022 ${formatBytes(currentPdfImgFile.size)}`;
+    }
+    if (pdfImgExtractedCount) pdfImgExtractedCount.textContent = result.numPages;
+
+    renderPdfPagesGrid(result.pages);
+  } catch (err) {
+    console.error('Failed to extract PDF pages:', err);
+    if (pdfPagesGrid) {
+      pdfPagesGrid.innerHTML = `<div style="grid-column: 1 / -1; text-align: center; color: var(--accent-danger); padding: 30px;">Extraction failed: ${err.message}</div>`;
+    }
+  } finally {
+    isExtractingPdf = false;
+  }
+}
+
+function renderPdfPagesGrid(pages) {
+  if (!pdfPagesGrid) return;
+  pdfPagesGrid.innerHTML = '';
+
+  pages.forEach(page => {
+    const card = document.createElement('div');
+    card.className = 'pdf-page-card';
+    card.innerHTML = `
+      <div class="pdf-page-thumb-wrap">
+        <img class="pdf-page-thumb" src="${page.dataUrl}" alt="Page ${page.pageNum} Preview" />
+        <span class="pdf-page-badge">Page ${page.pageNum}</span>
+      </div>
+      <div class="pdf-page-meta">
+        <span class="pdf-page-info">${page.width} \u00d7 ${page.height} px &bull; ${formatBytes(page.size)}</span>
+        <button type="button" class="btn-download-page" data-page="${page.pageNum}">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+          Download ${page.formatName}
+        </button>
+      </div>
+    `;
+
+    const btnDownloadPage = card.querySelector('.btn-download-page');
+    btnDownloadPage.addEventListener('click', () => {
+      downloadBlob(page.blob, page.fileName);
+    });
+
+    pdfPagesGrid.appendChild(card);
+  });
+}
+
+function resetPdfToImageTool() {
+  currentPdfImgFile = null;
+  currentPdfImgPages = [];
+  if (pdfToImageFileInput) pdfToImageFileInput.value = '';
+  if (pdfToImageEditorStage) {
+    pdfToImageEditorStage.style.display = 'none';
+    pdfToImageEditorStage.classList.remove('active');
+  }
+  if (pdfToImageDropZone) pdfToImageDropZone.style.display = 'block';
+  if (pdfPagesGrid) pdfPagesGrid.innerHTML = '';
 }
 
 document.addEventListener('DOMContentLoaded', initApp);
