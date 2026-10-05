@@ -1,5 +1,5 @@
 /**
- * SahiKagaz - Dedicated Image & Document Format Converter Engine
+ * DocReducer - Dedicated Image & Document Format Converter Engine
  * Converts images between JPG, PNG, WebP, and PDF (100% Client-Side Canvas & jsPDF)
  */
 

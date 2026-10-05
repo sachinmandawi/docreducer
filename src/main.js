@@ -649,6 +649,7 @@ async function fetchSamplePhotoFile() {
     new URL('sample-photo.jpg', window.location.href).href,
     './sample-photo.jpg',
     'sample-photo.jpg',
+    '/docreducer/sample-photo.jpg',
     '/sahikagaz/sample-photo.jpg',
     '/sample-photo.jpg'
   ];
@@ -699,7 +700,7 @@ async function fetchSamplePhotoFile() {
   ctx.fillStyle = '#1e1b4b';
   ctx.font = 'bold 56px system-ui, -apple-system, sans-serif';
   ctx.textAlign = 'center';
-  ctx.fillText('SahiKagaz Sample Photo', 960, 560);
+  ctx.fillText('DocReducer Sample Photo', 960, 560);
 
   ctx.fillStyle = '#6b7280';
   ctx.font = '500 28px system-ui, -apple-system, sans-serif';
@@ -708,7 +709,7 @@ async function fetchSamplePhotoFile() {
 
   return new Promise((resolve) => {
     canvas.toBlob((blob) => {
-      resolve(new File([blob], 'sahikagaz-sample-document.jpg', { type: 'image/jpeg' }));
+      resolve(new File([blob], 'docreducer-sample-document.jpg', { type: 'image/jpeg' }));
     }, 'image/jpeg', 0.95);
   });
 }

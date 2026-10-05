@@ -1,5 +1,5 @@
 /**
- * SahiKagaz - High-Performance Client-Side PDF Engine
+ * DocReducer - High-Performance Client-Side PDF Engine
  * Handles:
  * 1. PDF Compression (Target 100KB, 200KB, 500KB or custom KB)
  * 2. PDF to Image Conversion (Extract pages as JPG or PNG)
@@ -218,6 +218,7 @@ async function getCatImageDataUrl() {
     new URL('sample-photo.jpg', window.location.href).href,
     './sample-photo.jpg',
     'sample-photo.jpg',
+    '/docreducer/sample-photo.jpg',
     '/sahikagaz/sample-photo.jpg',
     '/sample-photo.jpg'
   ];
@@ -439,7 +440,7 @@ export async function generateSamplePdfFile() {
 
   doc.setFontSize(10);
   doc.setTextColor(100, 116, 139);
-  doc.text('This is a computer-generated sample test document for SahiKagaz compression and conversion.', 297, 750, { align: 'center' });
+  doc.text('This is a computer-generated sample test document for DocReducer compression and conversion.', 297, 750, { align: 'center' });
 
   const pdfBlob = doc.output('blob');
   return new File([pdfBlob], 'sample_exam_certificate.pdf', { type: 'application/pdf' });

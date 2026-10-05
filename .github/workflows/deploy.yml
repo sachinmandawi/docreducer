@@ -1,4 +1,4 @@
-name: Deploy SahiKagaz to GitHub Pages
+name: Deploy DocReducer to GitHub Pages
 
 on:
   push:
