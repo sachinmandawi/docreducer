@@ -2007,7 +2007,7 @@ async function runPdfToImageExtraction() {
   if (pdfPagesGrid) {
     pdfPagesGrid.innerHTML = `
       <div style="grid-column: 1 / -1; text-align: center; padding: 40px 20px; color: var(--text-secondary);">
-        <div class="pdf-spinner" style="display:inline-block; width:32px; height:32px; border:3px solid var(--border-color); border-top-color:var(--primary-color); border-radius:50%; animation:spin 0.8s linear infinite; margin-bottom:12px;"></div>
+        <div class="pdf-spinner" style="display:inline-block; width:32px; height:32px; border:3px solid var(--border-color); border-top-color:var(--brand-primary); border-radius:50%; animation:spin 0.8s linear infinite; margin-bottom:12px;"></div>
         <p>Extracting high-resolution pages from PDF...</p>
       </div>
     `;

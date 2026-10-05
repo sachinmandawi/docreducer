@@ -141,7 +141,7 @@ export async function compressToTargetKB(img, file, options = {}) {
     currentWidth = Math.round(currentWidth * ratio);
   }
 
-  const mimeType = (requestedFormat === 'image/png' && targetBytes < 300 * 1024) 
+  const mimeType = (requestedFormat === 'image/png' && targetBytes < 50 * 1024) 
     ? 'image/jpeg' 
     : requestedFormat;
 

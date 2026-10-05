@@ -23,6 +23,8 @@
   --accent-success-light: #ecfdf5;
   --accent-warning: #f59e0b;
   --accent-warning-light: #fffbeb;
+  --accent-danger: #ef4444;
+  --accent-danger-light: #fef2f2;
   
   --border-color: #e2e8f0;
   --border-hover: #cbd5e1;
@@ -56,6 +58,8 @@
   --accent-success-light: rgba(16, 185, 129, 0.15);
   --accent-warning: #fbbf24;
   --accent-warning-light: rgba(245, 158, 11, 0.15);
+  --accent-danger: #f87171;
+  --accent-danger-light: rgba(239, 68, 68, 0.15);
   
   --border-color: #1e293b;
   --border-hover: #334155;
