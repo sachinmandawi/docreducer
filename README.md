@@ -3,7 +3,7 @@
 > **Lightning-Fast, 100% Client-Side Image Compressor (MB to KB) & Format Converter**  
 > *Zero Uploads • Absolute Privacy • Exact Target KB Engine • Tailored for Govt Exams & High-Performance Web*
 
-[![Live Demo](https://img.shields.io/badge/Live%20Demo-docreducer.com-4f46e5?style=for-the-badge&logo=googlechrome&logoColor=white)](https://docreducer.com/)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-docreducer.tech-4f46e5?style=for-the-badge&logo=googlechrome&logoColor=white)](https://docreducer.tech/)
 [![Deploy Status](https://img.shields.io/github/actions/workflow/status/sachinmandawi/docreducer/deploy.yml?branch=main&label=Deploy&style=for-the-badge&logo=githubactions&logoColor=white)](https://github.com/sachinmandawi/docreducer/actions/workflows/deploy.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](LICENSE)
 [![Built with Vite](https://img.shields.io/badge/Vite-8.x-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
@@ -18,7 +18,7 @@
 
 Whether you are a student submitting passport photos and signatures to strict government portals (SSC, UPSC, IBPS, NEET, GATE) or a web developer optimizing web graphics for Core Web Vitals, **DocReducer guarantees your files meet exact size limits in milliseconds.**
 
-🔗 **Official Website**: [https://docreducer.com/](https://docreducer.com/)  
+🔗 **Official Website**: [https://docreducer.tech/](https://docreducer.tech/)  
 🔗 **GitHub Mirror**: [https://sachinmandawi.github.io/docreducer/](https://sachinmandawi.github.io/docreducer/)
 
 ---
@@ -185,7 +185,7 @@ DocReducer is fully built to satisfy Google AdSense Publisher Program Policies:
 **Sachin Mandawi**
 - **GitHub**: [@sachinmandawi](https://github.com/sachinmandawi)
 - **Email**: sachinmandawi@gmail.com
-- **Website**: [https://docreducer.com/](https://docreducer.com/)
+- **Website**: [https://docreducer.tech/](https://docreducer.tech/)
 
 ---
 
