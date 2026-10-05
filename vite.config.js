@@ -15,6 +15,7 @@ export default defineConfig({
         disclaimer: resolve(import.meta.dirname, 'disclaimer.html'),
         about: resolve(import.meta.dirname, 'about.html'),
         contact: resolve(import.meta.dirname, 'contact.html'),
+        neetPhotoResizer: resolve(import.meta.dirname, 'neet-photo-resizer.html'),
         sscPhotoResizer: resolve(import.meta.dirname, 'ssc-photo-resizer.html')
       }
     }
