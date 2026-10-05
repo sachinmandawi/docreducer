@@ -932,13 +932,53 @@ function closeLegalModal() {
 
 function checkUrlHash() {
   const hash = window.location.hash.replace('#', '');
-  if (hash === 'viewConverter' || hash === 'converter') {
+  if (hash === 'viewConverter' || hash === 'converter' || hash === 'convert') {
     switchTool('converter');
+    setConverterQuickMode('all');
     const el = document.getElementById('viewConverter');
     if (el) el.scrollIntoView({ behavior: 'smooth' });
-  } else if (hash === 'viewCompressor' || hash === 'compressor' || hash === 'mainToolCard') {
+  } else if (hash === 'image-to-pdf') {
+    switchTool('converter');
+    setConverterQuickMode('img-to-pdf');
+    const el = document.getElementById('viewConverter');
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
+  } else if (hash === 'pdf-to-jpg' || hash === 'pdf-to-image') {
+    switchTool('converter');
+    setConverterQuickMode('pdf-to-img');
+    const el = document.getElementById('viewConverter');
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
+  } else if (hash === 'jpg-to-webp') {
+    switchTool('converter');
+    setConverterQuickMode('jpg-to-webp');
+    const el = document.getElementById('viewConverter');
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
+  } else if (hash === 'png-to-jpg') {
+    switchTool('converter');
+    setConverterQuickMode('png-to-jpg');
+    const el = document.getElementById('viewConverter');
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
+  } else if (hash === 'viewCompressor' || hash === 'compressor' || hash === 'compress' || hash === 'mainToolCard') {
     switchTool('compressor');
     const el = document.getElementById('mainToolCard');
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
+  } else if (hash === 'compress-20kb') {
+    switchTool('compressor');
+    setTargetKB(20);
+    const el = document.getElementById('mainToolCard');
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
+  } else if (hash === 'compress-50kb') {
+    switchTool('compressor');
+    setTargetKB(50);
+    const el = document.getElementById('mainToolCard');
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
+  } else if (hash === 'compress-100kb') {
+    switchTool('compressor');
+    setTargetKB(100);
+    const el = document.getElementById('mainToolCard');
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
+  } else if (hash === 'examGuideSection') {
+    switchTool('compressor');
+    const el = document.getElementById('examGuideSection');
     if (el) el.scrollIntoView({ behavior: 'smooth' });
   } else if (['privacy', 'terms', 'about', 'contact', 'disclaimer'].includes(hash)) {
     openLegalModal(hash);
@@ -1071,13 +1111,101 @@ function setupToolSwitcher() {
   }
 }
 
+let currentConverterMode = 'all';
+
+function setConverterQuickMode(mode = 'all') {
+  currentConverterMode = mode;
+  const quickModeBtns = document.querySelectorAll('#converterQuickModes .conv-mode-btn');
+  quickModeBtns.forEach(btn => {
+    const isTarget = btn.getAttribute('data-mode') === mode;
+    btn.classList.toggle('active', isTarget);
+    btn.setAttribute('aria-selected', isTarget ? 'true' : 'false');
+  });
+
+  const converterDropTitle = document.getElementById('converterDropTitle');
+  const converterDropSub = document.getElementById('converterDropSub');
+  const btnConverterBrowse = document.getElementById('btnConverterBrowse');
+
+  const selectFormatCard = (targetFmt) => {
+    const formatCards = document.querySelectorAll('#converterFormatsGrid .format-card');
+    formatCards.forEach(c => {
+      const match = c.getAttribute('data-format') === targetFmt;
+      c.classList.toggle('active', match);
+      c.setAttribute('aria-checked', match ? 'true' : 'false');
+    });
+    convFormat = targetFmt;
+    let name = 'WebP';
+    if (convFormat === 'image/jpeg') name = 'JPG / JPEG';
+    else if (convFormat === 'image/png') name = 'PNG';
+    else if (convFormat === 'application/pdf') name = 'PDF Document';
+
+    if (converterSelectedBadge) {
+      converterSelectedBadge.textContent = 'Output: ' + name;
+    }
+
+    if (convFormat === 'application/pdf') {
+      if (converterQualityBox) converterQualityBox.style.display = 'none';
+      if (converterPdfBox) converterPdfBox.style.display = 'block';
+    } else if (convFormat === 'image/png') {
+      if (converterQualityBox) converterQualityBox.style.display = 'none';
+      if (converterPdfBox) converterPdfBox.style.display = 'none';
+    } else {
+      if (converterQualityBox) converterQualityBox.style.display = 'block';
+      if (converterPdfBox) converterPdfBox.style.display = 'none';
+    }
+
+    if (convImage && convFile) {
+      debouncedRunConversion();
+    }
+  };
+
+  if (mode === 'img-to-pdf') {
+    selectFormatCard('application/pdf');
+    if (converterDropTitle) converterDropTitle.textContent = 'Drop JPG, PNG or WebP Image to Convert to PDF';
+    if (converterDropSub) converterDropSub.innerHTML = 'Creates clean printable single-page or A4 document with margins &bull; 100% Client-Side';
+    if (btnConverterBrowse) btnConverterBrowse.textContent = 'Select Image for PDF Conversion';
+    if (converterFileInput) converterFileInput.accept = 'image/jpeg,image/png,image/webp,image/bmp';
+  } else if (mode === 'pdf-to-img') {
+    if (converterDropTitle) converterDropTitle.textContent = 'Drop PDF Document to Extract JPG / PNG Images';
+    if (converterDropSub) converterDropSub.innerHTML = 'Extracts all pages in crystal-clear high resolution &bull; Download single pages or full ZIP';
+    if (btnConverterBrowse) btnConverterBrowse.textContent = 'Select PDF Document to Extract';
+    if (converterFileInput) converterFileInput.accept = 'application/pdf';
+  } else if (mode === 'jpg-to-webp') {
+    selectFormatCard('image/webp');
+    if (converterDropTitle) converterDropTitle.textContent = 'Drop JPG or PNG Image to Convert to WebP';
+    if (converterDropSub) converterDropSub.innerHTML = 'Next-Gen Google WebP &bull; Saves up to 35% file size for websites and mobile apps';
+    if (btnConverterBrowse) btnConverterBrowse.textContent = 'Select Image for WebP Conversion';
+    if (converterFileInput) converterFileInput.accept = 'image/jpeg,image/png,image/bmp';
+  } else if (mode === 'png-to-jpg') {
+    selectFormatCard('image/jpeg');
+    if (converterDropTitle) converterDropTitle.textContent = 'Drop PNG or WebP Image to Convert to JPG / JPEG';
+    if (converterDropSub) converterDropSub.innerHTML = 'Universal photo standard accepted by all government exam &amp; job portals';
+    if (btnConverterBrowse) btnConverterBrowse.textContent = 'Select Image for JPG Conversion';
+    if (converterFileInput) converterFileInput.accept = 'image/png,image/webp';
+  } else {
+    // all
+    selectFormatCard('image/webp');
+    if (converterDropTitle) converterDropTitle.textContent = 'Drop your image or PDF here to convert format';
+    if (converterDropSub) converterDropSub.innerHTML = 'Convert JPG, PNG, WebP &amp; PDF vice-versa &bull; 100% Client-Side Privacy';
+    if (btnConverterBrowse) btnConverterBrowse.textContent = 'Select Image or PDF to Convert';
+    if (converterFileInput) converterFileInput.accept = 'image/jpeg,image/png,image/webp,image/bmp,image/gif,image/tiff,application/pdf';
+  }
+}
+
 function switchTool(tool) {
   const heroTitle = document.getElementById('pageHeroTitle');
   const heroSubtitle = document.getElementById('pageHeroSubtitle');
+  const compressContentWrapper = document.getElementById('compressContentWrapper');
+  const convertContentWrapper = document.getElementById('convertContentWrapper');
+  const navLinkCompress = document.getElementById('navLinkCompress');
+  const navLinkConvert = document.getElementById('navLinkConvert');
 
   if (tool === 'converter') {
     if (viewCompressor) viewCompressor.style.display = 'none';
     if (viewConverter) viewConverter.style.display = 'block';
+
+    if (compressContentWrapper) compressContentWrapper.style.display = 'none';
+    if (convertContentWrapper) convertContentWrapper.style.display = 'block';
 
     if (tabSwitchCompressor) {
       tabSwitchCompressor.classList.remove('active');
@@ -1088,11 +1216,14 @@ function switchTool(tool) {
       tabSwitchConverter.setAttribute('aria-selected', 'true');
     }
 
+    if (navLinkCompress) navLinkCompress.classList.remove('active');
+    if (navLinkConvert) navLinkConvert.classList.add('active');
+
     if (heroTitle) {
-      heroTitle.innerHTML = 'Convert Image &amp; <span>PDF Formats</span> Online';
+      heroTitle.innerHTML = 'Convert Image &amp; <span>PDF Documents</span> Online';
     }
     if (heroSubtitle) {
-      heroSubtitle.textContent = 'Convert JPG, PNG, WebP & PDF instantly with 100% client-side privacy. Zero server uploads.';
+      heroSubtitle.textContent = 'Convert JPG, PNG, WebP & PDF vice-versa in seconds. 100% Client-Side Privacy \u2014 No files uploaded.';
     }
 
     renderAd('adMidSlotConverter', 'MID_DOWNLOAD', 'rectangle', 'Format Converter Mid-Ad');
@@ -1100,6 +1231,9 @@ function switchTool(tool) {
   } else {
     if (viewConverter) viewConverter.style.display = 'none';
     if (viewCompressor) viewCompressor.style.display = 'block';
+
+    if (convertContentWrapper) convertContentWrapper.style.display = 'none';
+    if (compressContentWrapper) compressContentWrapper.style.display = 'block';
 
     if (tabSwitchConverter) {
       tabSwitchConverter.classList.remove('active');
@@ -1110,11 +1244,14 @@ function switchTool(tool) {
       tabSwitchCompressor.setAttribute('aria-selected', 'true');
     }
 
+    if (navLinkConvert) navLinkConvert.classList.remove('active');
+    if (navLinkCompress) navLinkCompress.classList.add('active');
+
     if (heroTitle) {
-      heroTitle.innerHTML = 'Reduce Image <span>MB to KB</span> Online';
+      heroTitle.innerHTML = 'Reduce Image &amp; Document <span>MB to KB</span> Online';
     }
     if (heroSubtitle) {
-      heroSubtitle.textContent = 'Compress JPG, PNG & WebP to exact 20KB, 50KB, or 100KB for Govt Forms, SSC, UPSC & Web. Instant & 100% Free.';
+      heroSubtitle.textContent = 'Compress JPG, PNG, WebP & PDF to exact 20KB, 50KB, or 100KB for Govt Forms, SSC, UPSC & Web. Instant & 100% Free.';
     }
 
     updateSliderProgress(targetKbSlider);
@@ -1126,6 +1263,16 @@ function switchTool(tool) {
  */
 function setupConverterTool() {
   if (!converterDropZone || !converterFileInput) return;
+
+  // Converter Quick Modes
+  const quickModeBtns = document.querySelectorAll('#converterQuickModes .conv-mode-btn');
+  quickModeBtns.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const mode = btn.getAttribute('data-mode');
+      setConverterQuickMode(mode);
+    });
+  });
 
   // Browse & Dropzone
   btnConverterBrowse.addEventListener('click', (e) => {
@@ -1531,6 +1678,7 @@ function resetConverter() {
   converterDropZone.style.display = 'block';
   converterBatchQueue.style.display = 'none';
   converterBatchList.innerHTML = '';
+  setConverterQuickMode(currentConverterMode);
 }
 
 /**
@@ -1930,6 +2078,7 @@ function resetPdfToImageTool() {
   }
   if (converterDropZone) converterDropZone.style.display = 'block';
   if (pdfPagesGrid) pdfPagesGrid.innerHTML = '';
+  setConverterQuickMode(currentConverterMode);
 }
 
 document.addEventListener('DOMContentLoaded', initApp);

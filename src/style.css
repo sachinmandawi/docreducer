@@ -228,6 +228,12 @@ body {
   background: var(--bg-tertiary);
 }
 
+.site-nav .nav-link.active {
+  color: #ffffff;
+  background: var(--brand-primary);
+  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.35);
+}
+
 @media (max-width: 768px) {
   .site-nav {
     display: none;
@@ -2547,6 +2553,67 @@ body {
   background: linear-gradient(135deg, var(--brand-primary), #818cf8) !important;
   color: #ffffff !important;
   box-shadow: 0 4px 14px rgba(79, 70, 229, 0.35) !important;
+}
+
+/* Converter Quick Modes Selector */
+.converter-mode-selector {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+
+.conv-mode-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg-primary);
+  border: 1.5px solid var(--border-color);
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 700;
+  padding: 8px 16px;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+}
+
+.conv-mode-btn:hover {
+  border-color: var(--brand-primary);
+  color: var(--brand-primary);
+  background: var(--brand-light);
+  transform: translateY(-1px);
+}
+
+.conv-mode-btn.active {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: #ffffff;
+  border-color: #059669;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+[data-theme="dark"] .conv-mode-btn.active {
+  background: linear-gradient(135deg, #059669, #047857);
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);
+}
+
+.conv-mode-btn .mode-icon {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.badge-format {
+  background: rgba(99, 102, 241, 0.12);
+  color: var(--brand-primary);
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  display: inline-block;
 }
 
 .converter-glow-icon {

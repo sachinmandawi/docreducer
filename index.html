@@ -269,8 +269,8 @@
         </a>
 
         <nav class="site-nav" aria-label="Main Navigation">
-          <a href="#viewCompressor" class="nav-link">Compress</a>
-          <a href="#viewConverter" class="nav-link">Convert</a>
+          <a href="#viewCompressor" class="nav-link active" id="navLinkCompress">Compress</a>
+          <a href="#viewConverter" class="nav-link" id="navLinkConvert">Convert</a>
           <a href="./ssc-photo-resizer.html" class="nav-link">SSC Guide</a>
           <a href="./about.html" class="nav-link">About</a>
           <a href="./contact.html" class="nav-link">Contact</a>
@@ -730,6 +730,30 @@
     <!-- 2. Dedicated Format Converter Tool View (Category 2) -->
     <div id="viewConverter" class="tool-view-section" style="display:none;">
       <section class="tool-card" id="converterToolCard">
+        <!-- Quick Mode Selector for Format Converter -->
+        <div class="converter-mode-selector" id="converterQuickModes" role="tablist" aria-label="Converter Quick Modes">
+          <button type="button" class="conv-mode-btn active" data-mode="all" role="tab" aria-selected="true">
+            <span class="mode-icon">🔄</span>
+            <span>All Formats</span>
+          </button>
+          <button type="button" class="conv-mode-btn" data-mode="img-to-pdf" role="tab" aria-selected="false">
+            <span class="mode-icon">📄</span>
+            <span>Image to PDF</span>
+          </button>
+          <button type="button" class="conv-mode-btn" data-mode="pdf-to-img" role="tab" aria-selected="false">
+            <span class="mode-icon">🖼️</span>
+            <span>PDF to JPG / PNG</span>
+          </button>
+          <button type="button" class="conv-mode-btn" data-mode="jpg-to-webp" role="tab" aria-selected="false">
+            <span class="mode-icon">⚡</span>
+            <span>JPG to WebP</span>
+          </button>
+          <button type="button" class="conv-mode-btn" data-mode="png-to-jpg" role="tab" aria-selected="false">
+            <span class="mode-icon">✨</span>
+            <span>PNG to JPG</span>
+          </button>
+        </div>
+
         <!-- 1. Dropzone for Converter (Unified Image & PDF) -->
         <div id="converterDropZone" class="dropzone" tabindex="0" role="button" aria-label="Drop Image or PDF Here to Convert Format">
           <input type="file" id="converterFileInput" accept="image/jpeg,image/png,image/webp,image/bmp,image/gif,image/tiff,application/pdf" multiple style="display:none;" />
@@ -741,8 +765,8 @@
               <polyline points="21 21 21 16 16 16"></polyline>
             </svg>
           </div>
-          <h2 class="dropzone-title">Drop your image or PDF here to convert format</h2>
-          <p class="dropzone-sub">Convert JPG, PNG, WebP &amp; PDF vice-versa &bull; 100% Client-Side Privacy</p>
+          <h2 class="dropzone-title" id="converterDropTitle">Drop your image or PDF here to convert format</h2>
+          <p class="dropzone-sub" id="converterDropSub">Convert JPG, PNG, WebP &amp; PDF vice-versa &bull; 100% Client-Side Privacy</p>
           <button type="button" class="btn-browse" id="btnConverterBrowse">Select Image or PDF to Convert</button>
 
           <div class="sample-trigger-row">
@@ -1004,8 +1028,10 @@
       </div>
 
 
-      <!-- Section: Step by Step Workflow -->
-      <section class="content-section" id="howItWorksSection">
+      <!-- Compress Mode Content Sections -->
+      <div id="compressContentWrapper">
+        <!-- Section: Step by Step Workflow -->
+        <section class="content-section" id="howItWorksSection">
         <h2 class="section-heading">How to Reduce Image Size from MB to KB in 3 Simple Steps</h2>
         <p class="section-subheading">DocReducer executes high-efficiency binary search algorithms directly in your browser memory &mdash; fast, private, and effortless:</p>
         
@@ -1316,6 +1342,256 @@
           </div>
         </div>
       </section>
+      </div>
+      <!-- /compressContentWrapper -->
+
+      <!-- Convert Mode Content Sections (Visible when Convert tab is active) -->
+      <div id="convertContentWrapper" style="display:none;">
+        <!-- Section: Step by Step Workflow (Convert) -->
+        <section class="content-section" id="convertHowItWorksSection">
+          <h2 class="section-heading">How to Convert Images &amp; PDF Documents in 3 Simple Steps</h2>
+          <p class="section-subheading">DocReducer converts formats directly inside your browser memory &mdash; fast, private, and effortless:</p>
+          
+          <div class="steps-grid">
+            <div class="step-card">
+              <div class="step-number">1</div>
+              <h3 class="step-title">Upload Image or PDF</h3>
+              <p class="step-desc">Drag &amp; drop any JPG, PNG, WebP image or multi-page PDF document, or browse from your device. Paste anytime with <kbd>Ctrl+V</kbd>.</p>
+            </div>
+            <div class="step-card">
+              <div class="step-number">2</div>
+              <h3 class="step-title">Choose Output Format</h3>
+              <p class="step-desc">Select JPG, PNG Lossless, WebP, or printable PDF. Choose original aspect ratio or standard A4 sheet with 10mm margins for print/portals.</p>
+            </div>
+            <div class="step-card">
+              <div class="step-number">3</div>
+              <h3 class="step-title">Instant Download / ZIP</h3>
+              <p class="step-desc">Download your converted file instantly or download all extracted PDF pages and batch-converted images bundled into a single ZIP archive.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Section: Supported Formats & Conversion Matrix -->
+        <section class="content-section" id="convertMatrixSection">
+          <h2 class="section-heading">Supported Image &amp; PDF Format Conversion Matrix</h2>
+          <p class="section-subheading">Comprehensive conversion guide for government portals, admit cards, websites, and official documents:</p>
+          
+          <div class="table-responsive">
+            <table class="exam-table">
+              <thead>
+                <tr>
+                  <th>Conversion Mode</th>
+                  <th>Source Format</th>
+                  <th>Target Output</th>
+                  <th>Best Use Cases &amp; Portal Requirements</th>
+                  <th>Core Advantages</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Image to PDF Converter</strong></td>
+                  <td>JPG, PNG, WebP, BMP</td>
+                  <td><span class="badge-format">PDF Document</span></td>
+                  <td>Govt job portal document uploads, UPSC admit card proofs, certificates, A4 printouts</td>
+                  <td>Original fit or ISO A4 sheet with 10mm margins &bull; 100% In-Browser</td>
+                </tr>
+                <tr>
+                  <td><strong>PDF to Image (JPG/PNG)</strong></td>
+                  <td>PDF (Multi-page)</td>
+                  <td><span class="badge-format">JPG or PNG</span></td>
+                  <td>Extracting passport photo or signature from PDF admit card, splitting certificates</td>
+                  <td>High-DPI page extraction &bull; Individual page or complete ZIP download</td>
+                </tr>
+                <tr>
+                  <td><strong>JPG / JPEG to WebP</strong></td>
+                  <td>JPG / JPEG</td>
+                  <td><span class="badge-format">Google WebP</span></td>
+                  <td>Modern website development, mobile apps, blogs, fast web page loading</td>
+                  <td>Save 25% to 35% file size with identical visual clarity &bull; Next-Gen format</td>
+                </tr>
+                <tr>
+                  <td><strong>PNG to JPG / JPEG</strong></td>
+                  <td>PNG (Transparent or solid)</td>
+                  <td><span class="badge-format">JPG / JPEG</span></td>
+                  <td>Government job portals that reject PNG files (SSC, UPSC, Banking, State PSCs)</td>
+                  <td>Automated clean white background compositing for transparent signatures</td>
+                </tr>
+                <tr>
+                  <td><strong>WebP / JPG to PNG</strong></td>
+                  <td>WebP, JPG</td>
+                  <td><span class="badge-format">PNG Lossless</span></td>
+                  <td>Diagrams, charts, line art, signatures, and graphics needing pixel-perfect edges</td>
+                  <td>Zero compression artifacts &bull; Lossless RGB reproduction</td>
+                </tr>
+                <tr>
+                  <td><strong>WebP to JPG / JPEG</strong></td>
+                  <td>Google WebP</td>
+                  <td><span class="badge-format">Universal JPG</span></td>
+                  <td>Opening modern web images in legacy image viewers, Photoshop, or offline printing</td>
+                  <td>100% universal operating system and printer compatibility</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Section: Converter Feature Comparison Table -->
+        <section class="content-section" id="convertCompareSection">
+          <h2 class="section-heading">Why DocReducer Converter Outperforms Cloud Converters</h2>
+          <p class="section-subheading">See how our client-side conversion engine protects your documents compared to legacy cloud websites:</p>
+
+          <div class="table-responsive">
+            <table class="exam-table">
+              <thead>
+                <tr>
+                  <th>Feature / Capability</th>
+                  <th>DocReducer (Client-Side)</th>
+                  <th>Traditional Cloud Converters</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Privacy &amp; Data Security</strong></td>
+                  <td><span class="badge-size">100% Private</span> &bull; Never leaves your device</td>
+                  <td>Uploaded to third-party remote cloud servers</td>
+                </tr>
+                <tr>
+                  <td><strong>Multi-Page PDF Extraction</strong></td>
+                  <td><span class="badge-size">Unlimited Pages</span> &bull; Free batch ZIP</td>
+                  <td>Capped at 2&ndash;3 pages; prompts costly subscription</td>
+                </tr>
+                <tr>
+                  <td><strong>Processing Speed</strong></td>
+                  <td><span class="badge-size">&lt; 500 Milliseconds</span> &bull; Instant in RAM</td>
+                  <td>Slow due to upload, cloud queue, and download latency</td>
+                </tr>
+                <tr>
+                  <td><strong>Confidential Document Safety</strong></td>
+                  <td>Safe for signatures, Aadhaar, PAN, and student certificates</td>
+                  <td>Risks data interception and unknown server retention</td>
+                </tr>
+                <tr>
+                  <td><strong>Watermarks</strong></td>
+                  <td><span class="badge-size">Zero Watermarks</span> &bull; Clean output</td>
+                  <td>Frequently embeds promotional watermarks or stamps</td>
+                </tr>
+                <tr>
+                  <td><strong>Usage Caps &amp; Fees</strong></td>
+                  <td><span class="badge-size">100% Free Forever</span> &bull; Unlimited files</td>
+                  <td>Daily upload limits, trial restrictions, or paywalls</td>
+                </tr>
+                <tr>
+                  <td><strong>Offline Capability</strong></td>
+                  <td><span class="badge-size">Works Offline</span> &bull; Page cached in browser</td>
+                  <td>Fails completely without an active internet connection</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- High-Value Educational Content: Technical Conversion Guide -->
+        <section class="content-section" id="convertTechnicalGuideSection">
+          <h2 class="section-heading">The Engineering Behind Client-Side Format Conversion</h2>
+          <p class="section-subheading">How DocReducer achieves vector-accurate PDF generation and pristine image rendering in browser memory:</p>
+          
+          <div style="background:var(--bg-card); border:1px solid var(--border-color); border-radius:var(--radius-lg); padding:32px; line-height:1.75; color:var(--text-secondary);">
+            <h3 style="color:var(--text-primary); margin-bottom:12px; font-size:1.25rem;">1. HTML5 Canvas Bit-Depth &amp; Alpha Channel Compositing</h3>
+            <p style="margin-bottom:18px;">When converting transparent PNG or WebP images into JPEG format, browsers without custom compositing engines often render alpha areas as unsightly black rectangular voids. DocReducer uses an in-memory double-buffer canvas system with a dedicated white fill matrix (<code>#FFFFFF</code>) before blitting the source image bitmap. This guarantees seamless, compliant passport photo portraits and transparent signature scans ready for strict government portals.</p>
+
+            <h3 style="color:var(--text-primary); margin-bottom:12px; font-size:1.25rem;">2. WebAssembly &amp; PDF.js High-DPI Vector Rasterization</h3>
+            <p style="margin-bottom:18px;">DocReducer incorporates the PDF.js WebAssembly-accelerated vector engine. When extracting pages from multi-page PDF documents (such as SSC CGL admit cards or university mark sheets), each page vector primitive and embedded font glyph is rendered to an HTML5 canvas at up to 2400 pixels with sub-pixel anti-aliasing. This preserves small fonts, barcode stamps, and candidate photographs in razor-sharp detail.</p>
+
+            <h3 style="color:var(--text-primary); margin-bottom:12px; font-size:1.25rem;">3. jsPDF Coordinate System &amp; Standard ISO 216 A4 Centering</h3>
+            <p style="margin-bottom:18px;">For Image-to-PDF conversion, DocReducer supports two dynamic layout modes: <em>Fit to Image Dimensions</em> (which precisely scales the PDF point viewport to the source image's aspect ratio up to 1200 pt) and <em>Standard A4 Sheet</em> (which computes exact 595.28 &times; 841.89 pt page boundaries with 10mm safety margins and auto-orientation). The output is a clean, universally compliant PDF document that opens instantly in all PDF readers without distortion.</p>
+
+            <h3 style="color:var(--text-primary); margin-bottom:12px; font-size:1.25rem;">4. In-Memory JSZip Archive Assembly</h3>
+            <p style="margin-bottom:8px;">When extracting multi-page PDFs or batch converting multiple photos, DocReducer compiles individual image blobs into standard Deflate-compressed ZIP archives (<code>.zip</code>) directly within browser RAM using JSZip. Because all compression happens locally on your device's CPU, archive generation takes less than a second without consuming your mobile data bandwidth.</p>
+          </div>
+        </section>
+
+        <!-- Section: Privacy & Security Assurance Banner -->
+        <section class="privacy-card">
+          <div class="privacy-icon">
+            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            </svg>
+          </div>
+          <div class="privacy-text">
+            <h3>100% Client-Side Privacy Guarantee &mdash; Zero Server Uploads</h3>
+            <p>Unlike other websites that upload your personal documents to distant cloud servers, <strong>DocReducer</strong> operates entirely inside your device's web browser using HTML5 Canvas and WebAssembly. Your photos, signatures, Aadhaar cards, and certificates remain 100% confidential and safe from cloud data leaks.</p>
+          </div>
+        </section>
+
+        <!-- Section: Frequently Asked Questions (FAQ) - Converter -->
+        <section class="content-section" id="convertFaqSection">
+          <h2 class="section-heading">Frequently Asked Questions (FAQ) &mdash; Format Converter</h2>
+          <p class="section-subheading">Everything you need to know about converting images and PDF documents on DocReducer:</p>
+
+          <div class="faq-list">
+            <div class="faq-item">
+              <button type="button" class="faq-question">
+                <span>How do I convert JPG photos or signatures to PDF for SSC / UPSC applications?</span>
+                <span class="faq-icon">&darr;</span>
+              </button>
+              <div class="faq-answer">
+                Click the 'Image to PDF' button above, upload your JPG or PNG image, and select your preferred layout (Fit to Image or Standard A4 Sheet). Click 'Download Converted File', and your ready-to-upload PDF will be generated instantly in your browser without any server upload.
+              </div>
+            </div>
+
+            <div class="faq-item">
+              <button type="button" class="faq-question">
+                <span>How can I extract individual pages as JPG images from a PDF admit card or certificate?</span>
+                <span class="faq-icon">&darr;</span>
+              </button>
+              <div class="faq-answer">
+                Click 'PDF to JPG / PNG' mode, drop your PDF document, and DocReducer will automatically extract and render every page as a high-resolution JPG or PNG image. You can preview all pages and download individual pages or download all pages in a single ZIP file.
+              </div>
+            </div>
+
+            <div class="faq-item">
+              <button type="button" class="faq-question">
+                <span>Will converting a transparent PNG image to JPG create an ugly black box?</span>
+                <span class="faq-icon">&darr;</span>
+              </button>
+              <div class="faq-answer">
+                No! The JPEG format does not support transparency. However, DocReducer automatically composites transparent background pixels onto a clean white background (#FFFFFF). Your signatures and logos will look clean, crisp, and professional.
+              </div>
+            </div>
+
+            <div class="faq-item">
+              <button type="button" class="faq-question">
+                <span>Is it safe to convert confidential identity documents like Aadhaar, PAN, and degrees?</span>
+                <span class="faq-icon">&darr;</span>
+              </button>
+              <div class="faq-answer">
+                Yes, 100% safe. DocReducer processes all files locally within your device's web browser memory sandbox using WebAssembly and HTML5 Canvas. No document or biometric photo is ever sent to or stored on any remote cloud server.
+              </div>
+            </div>
+
+            <div class="faq-item">
+              <button type="button" class="faq-question">
+                <span>Can I convert multiple images at the same time (batch conversion)?</span>
+                <span class="faq-icon">&darr;</span>
+              </button>
+              <div class="faq-answer">
+                Yes! Simply drag and drop multiple images into the converter dropzone. DocReducer converts all files in parallel and allows you to download them individually or packaged together in a single ZIP archive.
+              </div>
+            </div>
+
+            <div class="faq-item">
+              <button type="button" class="faq-question">
+                <span>What is Google WebP and why should I convert images to it?</span>
+                <span class="faq-icon">&darr;</span>
+              </button>
+              <div class="faq-answer">
+                WebP is a modern image format developed by Google that delivers 25% to 35% smaller file sizes compared to traditional JPEG at the exact same visual quality. It is widely supported by all modern browsers (Chrome, Safari, Edge, Firefox) and makes websites load substantially faster.
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+      <!-- /convertContentWrapper -->
     </main>
 
     <!-- Footer -->
@@ -1336,14 +1612,16 @@
         <div class="footer-col">
           <h4>Popular Tools</h4>
           <ul class="footer-links">
-            <li><a href="#mainToolCard">Compress Image to 20 KB</a></li>
-            <li><a href="#mainToolCard">Compress Image to 50 KB</a></li>
-            <li><a href="#mainToolCard">Compress Image to 100 KB</a></li>
+            <li><a href="#compress-20kb">Compress Image to 20 KB</a></li>
+            <li><a href="#compress-50kb">Compress Image to 50 KB</a></li>
+            <li><a href="#compress-100kb">Compress Image to 100 KB</a></li>
             <li><a href="./ssc-photo-resizer.html">SSC Photo Resizer (20KB - 50KB)</a></li>
             <li><a href="#examGuideSection">Govt Exam Photo Resizer</a></li>
-            <li><a href="#mainToolCard">Signature Size Reducer</a></li>
-            <li><a href="#viewConverter">Image to PDF Converter</a></li>
-            <li><a href="#viewConverter">JPG to WebP Converter</a></li>
+            <li><a href="#compress-20kb">Signature Size Reducer</a></li>
+            <li><a href="#image-to-pdf">Image to PDF Converter</a></li>
+            <li><a href="#pdf-to-jpg">PDF to JPG Converter</a></li>
+            <li><a href="#jpg-to-webp">JPG to WebP Converter</a></li>
+            <li><a href="#png-to-jpg">PNG to JPG Converter</a></li>
           </ul>
         </div>
 
