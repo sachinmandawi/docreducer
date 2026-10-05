@@ -229,6 +229,7 @@ function initApp() {
   initAdSense();
   renderAd('adTopSlot', 'TOP_LEADERBOARD', 'horizontal', 'Header 728x90');
   renderAd('adMidSlot', 'MID_DOWNLOAD', 'rectangle', 'High-CTR In-Content');
+  renderAd('adMidSlotPdf', 'MID_DOWNLOAD', 'rectangle', 'PDF Compressor Mid-Ad');
   renderAd('adArticleSlot', 'ARTICLE_NATIVE', 'rectangle', 'In-Article Native Ad');
   renderAd('adStickySlot', 'STICKY_FOOTER', 'horizontal', 'Sticky Mobile 320x50');
 
@@ -554,7 +555,7 @@ async function triggerCompression() {
 
     statOriginalSize.textContent = formatBytes(result.originalSize);
     statCompressedSize.textContent = formatBytes(result.compressedSize);
-    statSavedPercent.textContent = `-${result.savedPercent}%`;
+    statSavedPercent.textContent = result.savedPercent > 0 ? `-${result.savedPercent}%` : '0%';
 
     imgPreviewCompressed.src = result.url;
     btnDownloadText.textContent = `Download Compressed Image (${formatBytes(result.compressedSize)})`;
@@ -813,17 +814,23 @@ function getOutputFileName() {
 }
 
 function convertBlobToPng(blob) {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     const img = new Image();
+    const objUrl = URL.createObjectURL(blob);
     img.onload = () => {
       const canvas = document.createElement('canvas');
-      canvas.width = img.width;
-      canvas.height = img.height;
+      canvas.width = img.naturalWidth || img.width;
+      canvas.height = img.naturalHeight || img.height;
       const ctx = canvas.getContext('2d');
       ctx.drawImage(img, 0, 0);
+      URL.revokeObjectURL(objUrl);
       canvas.toBlob(resolve, 'image/png');
     };
-    img.src = URL.createObjectURL(blob);
+    img.onerror = () => {
+      URL.revokeObjectURL(objUrl);
+      reject(new Error('Failed to convert image to PNG'));
+    };
+    img.src = objUrl;
   });
 }
 

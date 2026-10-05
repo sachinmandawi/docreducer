@@ -85,7 +85,7 @@ async function testCompression(img, width, height, mimeType, quality, rotation =
 
   canvas.width = targetW;
   canvas.height = targetH;
-  const ctx = canvas.getContext('2d', { alpha: mimeType === 'image/png' });
+  const ctx = canvas.getContext('2d', { alpha: mimeType === 'image/png' || mimeType === 'image/webp' });
 
   ctx.imageSmoothingEnabled = true;
   ctx.imageSmoothingQuality = 'high';

@@ -109,7 +109,7 @@ export async function convertFormat(img, file, targetFormat = 'image/jpeg', opti
   const canvas = document.createElement('canvas');
   canvas.width = origWidth;
   canvas.height = origHeight;
-  const ctx = canvas.getContext('2d', { alpha: targetFormat === 'image/png' });
+  const ctx = canvas.getContext('2d', { alpha: targetFormat === 'image/png' || targetFormat === 'image/webp' });
 
   ctx.imageSmoothingEnabled = true;
   ctx.imageSmoothingQuality = 'high';
