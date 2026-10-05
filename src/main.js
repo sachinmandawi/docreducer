@@ -932,7 +932,15 @@ function closeLegalModal() {
 
 function checkUrlHash() {
   const hash = window.location.hash.replace('#', '');
-  if (['privacy', 'terms', 'about', 'contact', 'disclaimer'].includes(hash)) {
+  if (hash === 'viewConverter' || hash === 'converter') {
+    switchTool('converter');
+    const el = document.getElementById('viewConverter');
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
+  } else if (hash === 'viewCompressor' || hash === 'compressor' || hash === 'mainToolCard') {
+    switchTool('compressor');
+    const el = document.getElementById('mainToolCard');
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
+  } else if (['privacy', 'terms', 'about', 'contact', 'disclaimer'].includes(hash)) {
     openLegalModal(hash);
   }
 }
@@ -1046,6 +1054,20 @@ function setupToolSwitcher() {
   }
   if (tabSwitchConverter) {
     tabSwitchConverter.addEventListener('click', () => switchTool('converter'));
+  }
+
+  // Header Nav links (Compress & Convert)
+  const navCompress = document.querySelector('header a[href="#viewCompressor"]');
+  const navConvert = document.querySelector('header a[href="#viewConverter"]');
+  if (navCompress) {
+    navCompress.addEventListener('click', () => {
+      switchTool('compressor');
+    });
+  }
+  if (navConvert) {
+    navConvert.addEventListener('click', () => {
+      switchTool('converter');
+    });
   }
 }
 
