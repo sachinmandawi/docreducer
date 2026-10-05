@@ -1,7 +1,7 @@
 import './style.css';
 import { formatBytes, loadImage, compressToTargetKB } from './compressor.js';
 import { convertFormat } from './converter.js';
-import { initAdSense, renderAd } from './ads-config.js';
+import { ADS_CONFIG, initAdSense, renderAd } from './ads-config.js';
 import { LEGAL_PAGES } from './legal-content.js';
 import {
   compressPdfToTargetKB,
@@ -232,8 +232,10 @@ function initApp() {
   renderAd('adArticleSlot', 'ARTICLE_NATIVE', 'rectangle', 'In-Article Native Ad');
   renderAd('adStickySlot', 'STICKY_FOOTER', 'horizontal', 'Sticky Mobile 320x50');
 
-  if (window.innerWidth <= 768 && !sessionStorage.getItem('sticky_ad_dismissed')) {
+  if ((ADS_CONFIG.ADS_ENABLED || ADS_CONFIG.SHOW_PLACEHOLDERS) && window.innerWidth <= 768 && !sessionStorage.getItem('sticky_ad_dismissed')) {
     stickyMobileAd.classList.add('show');
+  } else if (stickyMobileAd) {
+    stickyMobileAd.style.display = 'none';
   }
 
   // Event Listeners
@@ -650,7 +652,6 @@ async function fetchSamplePhotoFile() {
     './sample-photo.jpg',
     'sample-photo.jpg',
     '/docreducer/sample-photo.jpg',
-    '/sahikagaz/sample-photo.jpg',
     '/sample-photo.jpg'
   ];
 

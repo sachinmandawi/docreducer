@@ -48,6 +48,11 @@
         'wait_for_update': 500
       });
     </script>
+
+    <!-- Google AdSense Verification Script
+         When you apply in Google AdSense dashboard, uncomment the script below and replace ca-pub-XXXXXXXXXXXXXXXX with your actual Publisher ID:
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script>
+    -->
     
     <!-- Structured Data (JSON-LD): WebApplication -->
     <script type="application/ld+json">
@@ -235,7 +240,7 @@
       "@type": "Organization",
       "name": "DocReducer",
       "url": "https://docreducer.com/",
-      "logo": "https://docreducer.com/logo.svg",
+      "logo": "https://docreducer.com/favicon.svg",
       "contactPoint": {
         "@type": "ContactPoint",
         "email": "sachinmandawi@gmail.com",
@@ -263,6 +268,13 @@
           </div>
         </a>
 
+        <nav class="site-nav" aria-label="Main Navigation">
+          <a href="#viewCompressor" class="nav-link">Compress</a>
+          <a href="#viewConverter" class="nav-link">Convert</a>
+          <a href="./ssc-photo-resizer.html" class="nav-link">SSC Guide</a>
+          <a href="./about.html" class="nav-link">About</a>
+          <a href="./contact.html" class="nav-link">Contact</a>
+        </nav>
 
         <button type="button" id="themeToggleBtn" class="theme-toggle-btn" aria-label="Toggle Dark/Light Mode" title="Toggle theme">
           <svg id="themeIconSun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
@@ -1327,6 +1339,7 @@
             <li><a href="#mainToolCard">Compress Image to 20 KB</a></li>
             <li><a href="#mainToolCard">Compress Image to 50 KB</a></li>
             <li><a href="#mainToolCard">Compress Image to 100 KB</a></li>
+            <li><a href="./ssc-photo-resizer.html">SSC Photo Resizer (20KB - 50KB)</a></li>
             <li><a href="#examGuideSection">Govt Exam Photo Resizer</a></li>
             <li><a href="#mainToolCard">Signature Size Reducer</a></li>
             <li><a href="#viewConverter">Image to PDF Converter</a></li>
@@ -1337,11 +1350,11 @@
         <div class="footer-col">
           <h4>Legal &amp; Policy</h4>
           <ul class="footer-links">
-            <li><button type="button" class="legal-nav-btn" data-target="privacy" style="background:none; border:none; color:inherit; font:inherit; cursor:pointer; padding:0;">Privacy Policy</button></li>
-            <li><button type="button" class="legal-nav-btn" data-target="terms" style="background:none; border:none; color:inherit; font:inherit; cursor:pointer; padding:0;">Terms of Service</button></li>
-            <li><button type="button" class="legal-nav-btn" data-target="disclaimer" style="background:none; border:none; color:inherit; font:inherit; cursor:pointer; padding:0;">Disclaimer</button></li>
-            <li><button type="button" class="legal-nav-btn" data-target="about" style="background:none; border:none; color:inherit; font:inherit; cursor:pointer; padding:0;">About Us</button></li>
-            <li><button type="button" class="legal-nav-btn" data-target="contact" style="background:none; border:none; color:inherit; font:inherit; cursor:pointer; padding:0;">Contact Us</button></li>
+            <li><a href="./privacy-policy.html">Privacy Policy</a></li>
+            <li><a href="./terms.html">Terms of Service</a></li>
+            <li><a href="./disclaimer.html">Disclaimer</a></li>
+            <li><a href="./about.html">About Us</a></li>
+            <li><a href="./contact.html">Contact Us</a></li>
           </ul>
         </div>
       </div>
@@ -1392,7 +1405,7 @@
       <div class="cookie-actions">
         <button type="button" id="btnAcceptCookies" class="btn-cookie-accept">Accept All</button>
         <button type="button" id="btnDeclineCookies" class="btn-cookie-decline">Essential Only</button>
-        <button type="button" class="cookie-policy-link legal-nav-btn" data-target="privacy">Privacy Policy</button>
+        <a href="./privacy-policy.html" class="cookie-policy-link">Privacy Policy</a>
       </div>
     </div>
 

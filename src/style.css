@@ -207,6 +207,33 @@ body {
   height: 72px;
 }
 
+.site-nav {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.site-nav .nav-link {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 0.95rem;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  transition: all 0.15s ease;
+}
+
+.site-nav .nav-link:hover {
+  color: var(--brand-primary);
+  background: var(--bg-tertiary);
+}
+
+@media (max-width: 768px) {
+  .site-nav {
+    display: none;
+  }
+}
+
 .logo-group {
   display: flex;
   align-items: center;
@@ -319,6 +346,13 @@ body {
 .ad-slot-container {
   margin: 24px auto;
   text-align: center;
+}
+
+.ad-slot-container:empty {
+  display: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  min-height: 0 !important;
 }
 
 .ad-placeholder {
@@ -2011,6 +2045,84 @@ body {
   display: none !important;
   width: 0 !important;
   height: 0 !important;
+}
+
+.modal-body-content,
+.standalone-page-card {
+  color: var(--text-secondary);
+  line-height: 1.75;
+}
+
+.standalone-page-wrapper {
+  max-width: 880px;
+  margin: 40px auto 60px;
+  padding: 0 20px;
+}
+
+.standalone-page-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 44px;
+  box-shadow: var(--shadow-sm);
+  font-size: 1rem;
+}
+
+.standalone-page-card h1 {
+  font-size: 2.1rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+  letter-spacing: -0.02em;
+}
+
+.standalone-page-card .page-meta {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 28px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.standalone-page-card h2,
+.standalone-page-card h3 {
+  color: var(--text-primary);
+  font-size: 1.25rem;
+  font-weight: 750;
+  margin: 28px 0 10px;
+}
+
+.standalone-page-card h2:first-of-type,
+.standalone-page-card h3:first-of-type {
+  margin-top: 10px;
+}
+
+.standalone-page-card p {
+  margin-bottom: 16px;
+}
+
+.standalone-page-card ul {
+  padding-left: 24px;
+  margin-bottom: 20px;
+}
+
+.standalone-page-card li {
+  margin-bottom: 8px;
+}
+
+.standalone-page-card a {
+  color: var(--brand-primary);
+  text-decoration: underline;
+  font-weight: 600;
+}
+
+@media (max-width: 640px) {
+  .standalone-page-card {
+    padding: 24px 18px;
+  }
+  .standalone-page-card h1 {
+    font-size: 1.6rem;
+  }
 }
 
 .modal-body h3 {

@@ -219,7 +219,6 @@ async function getCatImageDataUrl() {
     './sample-photo.jpg',
     'sample-photo.jpg',
     '/docreducer/sample-photo.jpg',
-    '/sahikagaz/sample-photo.jpg',
     '/sample-photo.jpg'
   ];
 

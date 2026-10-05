@@ -1,4 +1,4 @@
-# robots.txt for DocReducer (https://docreducer.com)
+# robots.txt for DocReducer (https://docreducer.tech)
 User-agent: *
 Allow: /
 
@@ -12,4 +12,4 @@ Allow: /
 Allow: /src/style.css
 Allow: /favicon.svg
 
-Sitemap: https://docreducer.com/sitemap.xml
+Sitemap: https://docreducer.tech/sitemap.xml

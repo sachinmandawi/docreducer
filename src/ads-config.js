@@ -21,8 +21,8 @@ export const ADS_CONFIG = {
     STICKY_FOOTER: '5678901234'       // Mobile bottom floating adhesive banner
   },
 
-  // Show placeholder badge in development/demo mode
-  SHOW_PLACEHOLDERS: true
+  // Keep false during Google AdSense review so reviewers do not see empty placeholder boxes
+  SHOW_PLACEHOLDERS: false
 };
 
 /**
@@ -46,6 +46,7 @@ export function renderAd(containerId, slotKey, format = 'auto', sizeLabel = 'Res
   if (!container) return;
 
   if (ADS_CONFIG.ADS_ENABLED) {
+    container.style.display = 'block';
     container.innerHTML = `
       <div class="ads-wrapper">
         <span class="ad-label">ADVERTISEMENT</span>
@@ -63,6 +64,7 @@ export function renderAd(containerId, slotKey, format = 'auto', sizeLabel = 'Res
       console.warn('AdSense push error:', e);
     }
   } else if (ADS_CONFIG.SHOW_PLACEHOLDERS) {
+    container.style.display = 'block';
     container.innerHTML = `
       <div class="ad-placeholder">
         <div class="ad-badge">ADVERTISEMENT</div>
@@ -77,5 +79,8 @@ export function renderAd(containerId, slotKey, format = 'auto', sizeLabel = 'Res
         </div>
       </div>
     `;
+  } else {
+    container.innerHTML = '';
+    container.style.display = 'none';
   }
 }
